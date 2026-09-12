@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "pydantic>=2.13.5",
+    "pydantic==2.5.3",
 ]
 
 [project.scripts]
@@ -21,4 +21,5 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "devtools>=0.12.2",
+    "pyspecification>=0.1.4",
 ]

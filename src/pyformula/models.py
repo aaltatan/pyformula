@@ -1,6 +1,6 @@
-from typing import Literal
+from typing import Literal, TypeAlias
 
-type Operator = Literal[
+Operator: TypeAlias = Literal[
     "add",
     "subtract",
     "multiply",

@@ -6,7 +6,9 @@ from pydantic import RootModel, model_serializer, model_validator
 from .models import Operator
 
 
-class SimpleFormulaSchema(RootModel[dict[Operator, list["SimpleFormulaSchema | Decimal | str"]]]):
+class SimpleFormulaSchema(RootModel):
+    root: dict[Operator, list["SimpleFormulaSchema | Decimal | str"]]
+
     @property
     def operator(self) -> Operator:
         return next(iter(self.root.keys()))
