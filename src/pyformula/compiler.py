@@ -32,17 +32,24 @@ class FormulaCompiler[T]:
         return result
 
     def _compile_expression(self, expression: ExpressionType) -> Formula[T]:
+
         if is_formula_dict(expression):
             return self.compile(expression)
 
+        if is_number(expression):
+            return Formula(lambda _: expression)
+
         if isinstance(expression, str):
+            # TODO(abdullah): implement compile for negative, positive, and abs methods
+            # 003
+            # positive => +<string_expression>
+            # negative => -<string_expression>
+            # abs => |<string_expression>|
+
             if expression not in self._fns:
                 raise FormulaNotFoundError(expression)
 
             return self._fns[expression]
-
-        if is_number(expression):
-            return Formula(lambda _: expression)
 
         msg = f"Invalid expression: {expression}"
         raise ValueError(msg)
