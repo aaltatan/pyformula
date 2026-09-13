@@ -27,8 +27,6 @@ OPERATORS_SAFE_FUNCTIONS: dict[OperatorType, OperatorFn] = {
     "floor_divide": _safe_operate(operator.floordiv),
     "modulo": _safe_operate(cast("OperatorFn", operator.mod)),
     "power": _safe_operate(operator.pow),
-    "left_shift": _safe_operate(operator.lshift),
-    "right_shift": _safe_operate(operator.rshift),
 }
 
 
@@ -80,18 +78,6 @@ class Formula[T]:
 
     def __rpow__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("power", other, reverse=True)
-
-    def __lshift__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
-        return self._operate("left_shift", other, reverse=False)
-
-    def __rlshift__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
-        return self._operate("left_shift", other, reverse=True)
-
-    def __rshift__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
-        return self._operate("right_shift", other, reverse=False)
-
-    def __rrshift__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
-        return self._operate("right_shift", other, reverse=True)
 
     def _operate(
         self,

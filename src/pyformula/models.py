@@ -12,8 +12,6 @@ OperatorType: TypeAlias = Literal[
     "modulo",
     "power",
     "floor_divide",
-    "left_shift",
-    "right_shift",
 ]
 ExpressionType: TypeAlias = "FormulaDict | str | NumberType"
 

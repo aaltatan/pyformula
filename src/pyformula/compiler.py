@@ -14,8 +14,6 @@ OPERATORS_APPLIERS: dict[OperatorType, Callable[[Formula[Any], Formula[Any]], Fo
     "modulo": operator.mod,
     "floor_divide": operator.floordiv,
     "power": operator.pow,
-    "left_shift": operator.lshift,
-    "right_shift": operator.rshift,
 }
 
 
