@@ -79,6 +79,18 @@ class Formula[T]:
     def __rpow__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("power", other, reverse=True)
 
+    def __pos__(self) -> "Formula[T]":
+        return self
+
+    def __neg__(self) -> "Formula[T]":
+        return Formula(lambda obj: -self(obj))
+
+    def __abs__(self) -> "Formula[T]":
+        return Formula(lambda obj: abs(self(obj)))
+
+    def __round__(self, ndigits: int | None = None) -> "Formula[T]":
+        return Formula(lambda obj: round(self(obj), ndigits))
+
     def _operate(
         self,
         operator: OperatorType,
