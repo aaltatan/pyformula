@@ -7,9 +7,7 @@ authors = [
     { name = "aaltatan", email = "a.altatan@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = [
-    "pydantic==2.5.3",
-]
+dependencies = []
 
 [project.scripts]
 pyformula = "pyformula:main"
@@ -21,5 +19,5 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "devtools>=0.12.2",
-    "pyspecification>=0.1.4",
+    "pyspecification>=2.0.1",
 ]

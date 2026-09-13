@@ -7,7 +7,6 @@ from .exceptions import (
 from .formula import Formula
 from .models import Operator
 from .registry import FormulasRegistry
-from .schemas import SimpleFormulaSchema
 from .variable import variable
 
 __all__ = [
@@ -19,6 +18,5 @@ __all__ = [
     "FormulaNotRegisteredError",
     "FormulasRegistry",
     "Operator",
-    "SimpleFormulaSchema",
     "variable",
 ]
