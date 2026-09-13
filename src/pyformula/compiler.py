@@ -1,7 +1,22 @@
+import operator
+from collections.abc import Callable
+from typing import Any
+
 from .exceptions import FormulaNotFoundError
 from .formula import Formula
-from .models import ExpressionType, FormulaDict, is_formula_dict, is_number
-from .operators import OPERATORS_APPLIERS
+from .models import ExpressionType, FormulaDict, OperatorType, is_formula_dict, is_number
+
+OPERATORS_APPLIERS: dict[OperatorType, Callable[[Formula[Any], Formula[Any]], Formula[Any]]] = {
+    "add": operator.add,
+    "subtract": operator.sub,
+    "multiply": operator.mul,
+    "divide": operator.truediv,
+    "modulo": operator.mod,
+    "floor_divide": operator.floordiv,
+    "power": operator.pow,
+    "left_shift": operator.lshift,
+    "right_shift": operator.rshift,
+}
 
 
 class FormulaCompiler[T]:
