@@ -20,4 +20,6 @@ build-backend = "uv_build"
 dev = [
     "devtools>=0.12.2",
     "pyspecification>=2.0.1",
+    "pytest>=9.1.1",
+    "pytest-coverage>=0.0",
 ]
