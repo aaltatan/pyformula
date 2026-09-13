@@ -88,9 +88,6 @@ class Formula[T]:
     def __abs__(self) -> "Formula[T]":
         return Formula(lambda obj: abs(self(obj)))
 
-    def __round__(self, ndigits: int | None = None) -> "Formula[T]":
-        return Formula(lambda obj: round(self(obj), ndigits))
-
     def _operate(
         self,
         operator: OperatorType,
