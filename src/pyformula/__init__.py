@@ -1,11 +1,11 @@
-from .compiler import FormulaCompiler, FormulaDict
+from .compiler import FormulaCompiler
 from .exceptions import (
     FormulaAlreadyRegisteredError,
     FormulaNotFoundError,
     FormulaNotRegisteredError,
 )
 from .formula import Formula
-from .models import Operator
+from .models import FormulaDict, NumberType, OperatorType, is_formula_dict, is_number
 from .registry import FormulasRegistry
 from .variable import variable
 
@@ -17,6 +17,9 @@ __all__ = [
     "FormulaNotFoundError",
     "FormulaNotRegisteredError",
     "FormulasRegistry",
-    "Operator",
+    "NumberType",
+    "OperatorType",
+    "is_formula_dict",
+    "is_number",
     "variable",
 ]

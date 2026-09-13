@@ -1,94 +1,109 @@
 import operator
 from collections.abc import Callable
 from decimal import Decimal
+from typing import cast
 
-from .models import Operator
+from .models import NumberType, OperatorFn, OperatorType
 
-OPERATORS: dict[Operator, Callable[[Decimal, Decimal], Decimal]] = {
-    "add": operator.add,
-    "subtract": operator.sub,
-    "multiply": operator.mul,
-    "divide": operator.truediv,
-    "modulo": operator.mod,
-    "floor_divide": operator.floordiv,
-    "power": operator.pow,
-    "left_shift": operator.lshift,
-    "right_shift": operator.rshift,
+
+def _safe_operate(fn: OperatorFn) -> OperatorFn:
+    def inner(a: NumberType, b: NumberType) -> NumberType:
+        if isinstance(a, Decimal) and isinstance(b, float):
+            b = Decimal.from_float(b)
+
+        if isinstance(b, Decimal) and isinstance(a, float):
+            a = Decimal.from_float(a)
+
+        return fn(a, b)
+
+    return inner
+
+
+OPERATORS: dict[OperatorType, OperatorFn] = {
+    "add": _safe_operate(cast("OperatorFn", operator.add)),
+    "subtract": _safe_operate(cast("OperatorFn", operator.sub)),
+    "multiply": _safe_operate(cast("OperatorFn", operator.mul)),
+    "divide": _safe_operate(operator.truediv),
+    "floor_divide": _safe_operate(operator.floordiv),
+    "modulo": _safe_operate(cast("OperatorFn", operator.mod)),
+    "power": _safe_operate(operator.pow),
+    "left_shift": _safe_operate(operator.lshift),
+    "right_shift": _safe_operate(operator.rshift),
 }
 
 
 class Formula[T]:
-    def __init__(self, fn: Callable[[T], Decimal]) -> None:
+    def __init__(self, fn: Callable[[T], NumberType]) -> None:
         self._fn = fn
 
-    def __call__(self, obj: T) -> Decimal:
+    def __call__(self, obj: T) -> NumberType:
         return self._fn(obj)
 
-    def __add__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __add__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("add", other, reverse=False)
 
-    def __radd__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __radd__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("add", other, reverse=True)
 
-    def __sub__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __sub__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("subtract", other, reverse=False)
 
-    def __rsub__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __rsub__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("subtract", other, reverse=True)
 
-    def __mul__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __mul__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("multiply", other, reverse=False)
 
-    def __rmul__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __rmul__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("multiply", other, reverse=True)
 
-    def __truediv__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __truediv__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("divide", other, reverse=False)
 
-    def __rtruediv__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __rtruediv__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("divide", other, reverse=True)
 
-    def __mod__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __mod__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("modulo", other, reverse=False)
 
-    def __rmod__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __rmod__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("modulo", other, reverse=True)
 
-    def __floordiv__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __floordiv__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("floor_divide", other, reverse=False)
 
-    def __rfloordiv__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __rfloordiv__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("floor_divide", other, reverse=True)
 
-    def __pow__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __pow__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("power", other, reverse=False)
 
-    def __rpow__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __rpow__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("power", other, reverse=True)
 
-    def __lshift__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __lshift__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("left_shift", other, reverse=False)
 
-    def __rlshift__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __rlshift__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("left_shift", other, reverse=True)
 
-    def __rshift__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __rshift__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("right_shift", other, reverse=False)
 
-    def __rrshift__(self, other: "Formula[T] | Decimal") -> "Formula[T]":
+    def __rrshift__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
         return self._operate("right_shift", other, reverse=True)
 
     def _operate(
         self,
-        operator: Operator,
-        other: "Formula[T] | Decimal",
+        operator: OperatorType,
+        other: "Formula[T] | NumberType",
         *,
         reverse: bool,
     ) -> "Formula[T]":
         operator_fn = OPERATORS[operator]
         other_fn = other if isinstance(other, Formula) else Formula(lambda _: other)
 
-        def inner(obj: T) -> Decimal:
+        def inner(obj: T) -> NumberType:
             value = self(obj)
             other_value = other_fn(obj)
             return operator_fn(other_value, value) if reverse else operator_fn(value, other_value)

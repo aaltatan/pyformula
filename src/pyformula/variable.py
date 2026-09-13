@@ -1,13 +1,13 @@
 from collections.abc import Callable
-from decimal import Decimal
 from functools import wraps
 
 from .formula import Formula
+from .models import NumberType
 
 
-def variable[T](fn: Callable[[T], Decimal]) -> Formula[T]:
+def variable[T](fn: Callable[[T], NumberType]) -> Formula[T]:
     @wraps(fn)
-    def wrapper(fn: Callable[[T], Decimal]) -> Callable[[T], Decimal]:
+    def wrapper(fn: Callable[[T], NumberType]) -> Callable[[T], NumberType]:
         return fn
 
     return Formula(wrapper(fn))

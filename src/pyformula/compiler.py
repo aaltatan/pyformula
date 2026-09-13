@@ -1,13 +1,12 @@
 import operator
 from collections.abc import Callable
-from decimal import Decimal
-from typing import Any, TypedDict, TypeGuard
+from typing import Any
 
 from .exceptions import FormulaNotFoundError
 from .formula import Formula
-from .models import Operator
+from .models import ExpressionType, FormulaDict, OperatorType, is_formula_dict, is_number
 
-OPERATORS_APPLIERS: dict[Operator, Callable[[Formula[Any], Formula[Any]], Formula[Any]]] = {
+OPERATORS_APPLIERS: dict[OperatorType, Callable[[Formula[Any], Formula[Any]], Formula[Any]]] = {
     "add": operator.add,
     "subtract": operator.sub,
     "multiply": operator.mul,
@@ -18,11 +17,6 @@ OPERATORS_APPLIERS: dict[Operator, Callable[[Formula[Any], Formula[Any]], Formul
     "left_shift": operator.lshift,
     "right_shift": operator.rshift,
 }
-
-
-class FormulaDict(TypedDict):
-    operator: Operator
-    expressions: list["FormulaDict | str | Decimal"]
 
 
 class FormulaCompiler[T]:
@@ -39,7 +33,7 @@ class FormulaCompiler[T]:
 
         return result
 
-    def _compile_expression(self, expression: FormulaDict | str | Decimal) -> Formula[T]:
+    def _compile_expression(self, expression: ExpressionType) -> Formula[T]:
         if is_formula_dict(expression):
             return self.compile(expression)
 
@@ -49,21 +43,8 @@ class FormulaCompiler[T]:
 
             return self._fns[expression]
 
-        if is_decimal(expression):
+        if is_number(expression):
             return Formula(lambda _: expression)
 
         msg = f"Invalid expression: {expression}"
         raise ValueError(msg)
-
-
-def is_formula_dict(obj: object) -> TypeGuard[FormulaDict]:
-    return (
-        isinstance(obj, dict)
-        and "operator" in obj
-        and "expressions" in obj
-        and len(obj.keys()) == 2
-    )
-
-
-def is_decimal(obj: object) -> TypeGuard[Decimal]:
-    return isinstance(obj, (int, float, Decimal))
