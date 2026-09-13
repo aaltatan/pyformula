@@ -5,7 +5,7 @@ from .exceptions import (
     FormulaNotRegisteredError,
 )
 from .formula import Formula
-from .models import FormulaDict, NumberType, OperatorType, is_formula_dict, is_number
+from .models import FormulaDict, NumberType, OperatorFn, OperatorType, is_formula_dict, is_number
 from .registry import FormulasRegistry
 from .variable import variable
 
@@ -18,6 +18,7 @@ __all__ = [
     "FormulaNotRegisteredError",
     "FormulasRegistry",
     "NumberType",
+    "OperatorFn",
     "OperatorType",
     "is_formula_dict",
     "is_number",
