@@ -1,10 +1,71 @@
 import operator
 from collections.abc import Callable
-from typing import Any
+from typing import Any, TypeAlias, TypedDict, TypeGuard
 
 from .exceptions import FormulaNotFoundError
 from .formula import Formula
-from .models import ExpressionType, FormulaDict, OperatorType, is_formula_dict, is_number
+from .models import NumberType, OperatorType, is_number
+
+# -----------------------
+# models
+# -----------------------
+
+
+ExpressionType: TypeAlias = "FormulaDict | WrapperType | NumberType"
+WrapperType: TypeAlias = "str | NegativeWrapperDict | AbsWrapperDict | PositiveWrapperDict"
+
+
+class FormulaDict(TypedDict):
+    operator: OperatorType
+    expressions: list[ExpressionType]
+
+
+class PositiveWrapperDict(TypedDict):
+    positive: WrapperType
+
+
+class NegativeWrapperDict(TypedDict):
+    negative: WrapperType
+
+
+class AbsWrapperDict(TypedDict):
+    absolute: WrapperType
+
+
+# -----------------------
+# checkers
+# -----------------------
+
+
+def is_wrapped_dict(obj: object, key: str) -> bool:
+    return isinstance(obj, dict) and key in obj and len(obj.keys()) == 1
+
+
+def is_positive_wrapper_dict(obj: object) -> TypeGuard[PositiveWrapperDict]:
+    return is_wrapped_dict(obj, "positive")
+
+
+def is_negative_wrapper_dict(obj: object) -> TypeGuard[NegativeWrapperDict]:
+    return is_wrapped_dict(obj, "negative")
+
+
+def is_absolute_wrapper_dict(obj: object) -> TypeGuard[AbsWrapperDict]:
+    return is_wrapped_dict(obj, "absolute")
+
+
+def is_formula_dict(obj: object) -> TypeGuard[FormulaDict]:
+    return (
+        isinstance(obj, dict)
+        and "operator" in obj
+        and "expressions" in obj
+        and len(obj.keys()) == 2
+    )
+
+
+# -----------------------
+# constants
+# -----------------------
+
 
 OPERATORS_APPLIERS: dict[OperatorType, Callable[[Formula[Any], Formula[Any]], Formula[Any]]] = {
     "add": operator.add,
@@ -15,6 +76,11 @@ OPERATORS_APPLIERS: dict[OperatorType, Callable[[Formula[Any], Formula[Any]], Fo
     "floor_divide": operator.floordiv,
     "power": operator.pow,
 }
+
+
+# -----------------------
+# compiler
+# -----------------------
 
 
 class FormulaCompiler[T]:
@@ -32,24 +98,29 @@ class FormulaCompiler[T]:
         return result
 
     def _compile_expression(self, expression: ExpressionType) -> Formula[T]:
-
         if is_formula_dict(expression):
             return self.compile(expression)
 
         if is_number(expression):
             return Formula(lambda _: expression)
 
-        if isinstance(expression, str):
-            # TODO(abdullah): implement compile for negative, positive, and abs methods
-            # 003
-            # positive => +<string_expression>
-            # negative => -<string_expression>
-            # abs => |<string_expression>|
+        return self._compile_wrapped_expression(expression)
 
-            if expression not in self._fns:
-                raise FormulaNotFoundError(expression)
+    def _compile_wrapped_expression(self, expression: ExpressionType) -> Formula[T]:
+        if is_positive_wrapper_dict(expression):
+            return +self._compile_wrapped_expression(expression["positive"])
 
-            return self._fns[expression]
+        if is_negative_wrapper_dict(expression):
+            return -self._compile_wrapped_expression(expression["negative"])
 
-        msg = f"Invalid expression: {expression}"
-        raise ValueError(msg)
+        if is_absolute_wrapper_dict(expression):
+            return abs(self._compile_wrapped_expression(expression["absolute"]))
+
+        if not isinstance(expression, str):
+            msg = f"Invalid expression: {expression}"
+            raise TypeError(msg)
+
+        if expression not in self._fns:
+            raise FormulaNotFoundError(expression)
+
+        return self._fns[expression]
