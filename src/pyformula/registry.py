@@ -61,7 +61,7 @@ class FormulasRegistry[T]:
         if hidden:
             self._hidden_fns.add(reg_name)
 
-        formula = variable(fn)
+        formula = variable(name=reg_name)(fn)
 
         if description or fn.__doc__:
             formula.__doc__ = description or fn.__doc__
