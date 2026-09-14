@@ -1,8 +1,8 @@
 from collections.abc import Callable
-from decimal import Decimal
 
 from .exceptions import FormulaAlreadyRegisteredError, FormulaNotRegisteredError
 from .formula import Formula
+from .models import NumberType
 from .variable import variable
 
 
@@ -27,15 +27,15 @@ class FormulasRegistry[T]:
         name: str | None = None,
         description: str | None = None,
         hidden: bool = False,
-    ) -> Callable[[Callable[[T], Decimal]], Formula[T]]:
-        def decorator(fn: Callable[[T], Decimal]) -> Formula[T]:
+    ) -> Callable[[Callable[[T], NumberType]], Formula[T]]:
+        def decorator(fn: Callable[[T], NumberType]) -> Formula[T]:
             return self._register(fn, name=name, description=description, hidden=hidden)
 
         return decorator
 
     def register_variable(
         self,
-        fn: Callable[[T], Decimal],
+        fn: Callable[[T], NumberType],
         /,
         *,
         name: str | None = None,
@@ -46,7 +46,7 @@ class FormulasRegistry[T]:
 
     def _register(
         self,
-        fn: Callable[[T], Decimal],
+        fn: Callable[[T], NumberType],
         /,
         *,
         name: str | None,
