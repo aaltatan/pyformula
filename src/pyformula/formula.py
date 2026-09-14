@@ -31,10 +31,26 @@ OPERATORS_SAFE_FUNCTIONS: dict[OperatorType, OperatorFn] = {
     "power": _safe_operate(operator.pow),
 }
 
+OPERATORS_SYMBOLS: dict[OperatorType, str] = {
+    "add": "+",
+    "subtract": "-",
+    "multiply": "*",
+    "divide": "/",
+    "floor_divide": "//",
+    "modulo": "%",
+    "power": "**",
+}
+
 
 class Formula[T]:
-    def __init__(self, fn: Callable[[T], NumberType]) -> None:
+    def __init__(
+        self,
+        fn: Callable[[T], NumberType],
+        *,
+        name: str | None = None,
+    ) -> None:
         self._fn = fn
+        self._name = name
 
     def __call__(self, obj: T) -> NumberType:
         return self._fn(obj)
@@ -82,13 +98,25 @@ class Formula[T]:
         return self._operate("power", other, reverse=True)
 
     def __pos__(self) -> "Formula[T]":
-        return self
+        return Formula(self, name=f"+{self}")
 
     def __neg__(self) -> "Formula[T]":
-        return Formula(lambda obj: -self(obj))
+        return Formula(lambda obj: -self(obj), name=f"-{self}")
 
     def __abs__(self) -> "Formula[T]":
-        return Formula(lambda obj: abs(self(obj)))
+        return Formula(lambda obj: abs(self(obj)), name=f"|{self}|")
+
+    def __str__(self) -> str:
+        if self._name is not None:
+            return self._name
+
+        if self._fn.__name__ == "<lambda>":
+            return "anonymous"
+
+        return self._fn.__name__
+
+    def __repr__(self) -> str:
+        return f"Formula({self})"
 
     def _operate(
         self,
@@ -105,4 +133,4 @@ class Formula[T]:
             other_value = other_fn(obj)
             return operator_fn(other_value, value) if reverse else operator_fn(value, other_value)
 
-        return Formula(inner)
+        return Formula(inner, name=f"({self} {OPERATORS_SYMBOLS[operator]} {other})")

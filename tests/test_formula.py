@@ -46,7 +46,7 @@ def normal_formulas() -> dict[str, Formula[Employee]]:
 @pytest.fixture
 def lambda_formulas() -> dict[str, Formula[Employee]]:
     salary_var = Formula[Employee](lambda employee: employee.salary)
-    hourly_rate_var = Formula[Employee](lambda employee: employee.hourly_rate)
+    hourly_rate_var = Formula[Employee](lambda employee: employee.hourly_rate, name="hourly_rate")
     working_days_var = Formula[Employee](lambda _: 30)
 
     return {
@@ -56,6 +56,26 @@ def lambda_formulas() -> dict[str, Formula[Employee]]:
         "administrator_watch_cut": salary_var / working_days_var / 2,
         "teacher_watch_cut": hourly_rate_var / 2,
     }
+
+
+def test_formula_repr(normal_formulas: dict[str, Formula[Employee]]) -> None:
+    assert repr(normal_formulas["overtime_day"]) == "Formula(((salary / working_days) * 2))"
+    assert repr(normal_formulas["half_salary_reward"]) == "Formula((salary / 2))"
+    assert repr(normal_formulas["leaves_without_pay"]) == "Formula((salary / working_days))"
+    assert (
+        repr(normal_formulas["administrator_watch_cut"]) == "Formula(((salary / working_days) / 2))"
+    )
+    assert repr(normal_formulas["teacher_watch_cut"]) == "Formula((hourly_rate / 2))"
+
+    var = Formula[Employee](lambda obj: obj.hourly_rate, name="new_hourly_rate")
+
+    complex_formula = abs(-var) / 2
+    assert repr(complex_formula) == "Formula((|-new_hourly_rate| / 2))"
+
+
+def test_lambda_formula_repr(lambda_formulas: dict[str, Formula[Employee]]) -> None:
+    assert repr(lambda_formulas["overtime_day"]) == "Formula(((anonymous / anonymous) * 2))"
+    assert repr(lambda_formulas["teacher_watch_cut"]) == "Formula((hourly_rate / 2))"
 
 
 @pytest.mark.parametrize(
