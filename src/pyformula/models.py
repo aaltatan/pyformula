@@ -14,4 +14,4 @@ OperatorType: TypeAlias = Literal[
 
 
 def is_number(obj: object) -> TypeGuard[NumberType]:
-    return isinstance(obj, (int, float, Decimal))
+    return isinstance(obj, (int, float, Decimal)) and not isinstance(obj, bool)
