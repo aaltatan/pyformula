@@ -1,9 +1,11 @@
 import operator
 from collections.abc import Callable
 from decimal import Decimal
-from typing import cast
+from typing import TypeAlias, cast
 
-from .models import NumberType, OperatorFn, OperatorType
+from .models import NumberType, OperatorType
+
+OperatorFn: TypeAlias = Callable[[NumberType, NumberType], NumberType]
 
 
 def _safe_operate(fn: OperatorFn) -> OperatorFn:
