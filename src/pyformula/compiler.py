@@ -1,10 +1,9 @@
-import operator
-from collections.abc import Callable
-from typing import Any, TypeAlias, TypedDict, TypeGuard
+from typing import TypeAlias, TypedDict, TypeGuard, cast
 
 from .exceptions import FormulaNotFoundError
 from .formula import Formula
 from .models import NumberType, OperatorType, is_number
+from .operator import OPERATORS
 
 # -----------------------
 # models
@@ -63,22 +62,6 @@ def is_formula_dict(obj: object) -> TypeGuard[FormulaDict]:
 
 
 # -----------------------
-# constants
-# -----------------------
-
-
-OPERATORS_APPLIERS: dict[OperatorType, Callable[[Formula[Any], Formula[Any]], Formula[Any]]] = {
-    "add": operator.add,
-    "subtract": operator.sub,
-    "multiply": operator.mul,
-    "divide": operator.truediv,
-    "modulo": operator.mod,
-    "floor_divide": operator.floordiv,
-    "power": operator.pow,
-}
-
-
-# -----------------------
 # compiler
 # -----------------------
 
@@ -92,10 +75,10 @@ class FormulaCompiler[T]:
         result = self._compile_expression(first_expression)
 
         for expression in formula["expressions"][1:]:
-            applier = OPERATORS_APPLIERS[formula["operator"]]
+            applier, _ = OPERATORS[formula["operator"]]
             result = applier(result, self._compile_expression(expression))
 
-        return result
+        return cast("Formula[T]", result)
 
     def _compile_expression(self, expression: ExpressionType) -> Formula[T]:
         if is_formula_dict(expression):

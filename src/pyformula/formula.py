@@ -1,45 +1,8 @@
-import operator
 from collections.abc import Callable
-from decimal import Decimal
-from typing import TypeAlias, cast
+from typing import cast
 
 from .models import NumberType, OperatorType
-
-OperatorFn: TypeAlias = Callable[[NumberType, NumberType], NumberType]
-
-
-def _safe_operate(fn: OperatorFn) -> OperatorFn:
-    def inner(a: NumberType, b: NumberType) -> NumberType:
-        if isinstance(a, Decimal) and isinstance(b, float):
-            b = Decimal.from_float(b)
-
-        if isinstance(b, Decimal) and isinstance(a, float):
-            a = Decimal.from_float(a)
-
-        return fn(a, b)
-
-    return inner
-
-
-OPERATORS_SAFE_FUNCTIONS: dict[OperatorType, OperatorFn] = {
-    "add": _safe_operate(cast("OperatorFn", operator.add)),
-    "subtract": _safe_operate(cast("OperatorFn", operator.sub)),
-    "multiply": _safe_operate(cast("OperatorFn", operator.mul)),
-    "divide": _safe_operate(operator.truediv),
-    "floor_divide": _safe_operate(operator.floordiv),
-    "modulo": _safe_operate(cast("OperatorFn", operator.mod)),
-    "power": _safe_operate(operator.pow),
-}
-
-OPERATORS_SYMBOLS: dict[OperatorType, str] = {
-    "add": "+",
-    "subtract": "-",
-    "multiply": "*",
-    "divide": "/",
-    "floor_divide": "//",
-    "modulo": "%",
-    "power": "**",
-}
+from .operator import OPERATORS
 
 
 class Formula[T]:
@@ -125,12 +88,15 @@ class Formula[T]:
         *,
         reverse: bool,
     ) -> "Formula[T]":
-        operator_fn = OPERATORS_SAFE_FUNCTIONS[operator]
+        operator_fn, symbol = OPERATORS[operator]
         other_fn = other if isinstance(other, Formula) else Formula(lambda _: other)
 
         def inner(obj: T) -> NumberType:
             value = self(obj)
             other_value = other_fn(obj)
-            return operator_fn(other_value, value) if reverse else operator_fn(value, other_value)
+            return cast(
+                "NumberType",
+                (operator_fn(other_value, value)) if reverse else operator_fn(value, other_value),
+            )
 
-        return Formula(inner, name=f"({self} {OPERATORS_SYMBOLS[operator]} {other})")
+        return Formula(inner, name=f"({self} {symbol} {other})")

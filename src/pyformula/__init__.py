@@ -4,8 +4,9 @@ from .exceptions import (
     FormulaNotFoundError,
     FormulaNotRegisteredError,
 )
-from .formula import Formula, OperatorFn
+from .formula import Formula
 from .models import NumberType, OperatorType, is_number
+from .operator import OperatorFn
 from .registry import FormulasRegistry
 from .variable import variable
 
