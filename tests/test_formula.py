@@ -1,3 +1,4 @@
+import math
 import operator
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -169,6 +170,100 @@ def test_abs_formulas() -> None:
 
 
 @pytest.mark.parametrize(
+    "formula, expected_result, expected_result_type",
+    (
+        # floor
+        (math.floor(Formula(lambda _: 1)), 1, int),
+        (math.floor(Formula(lambda _: 1.2)), 1, float),
+        (math.floor(Formula(lambda _: -1.2)), -2, float),
+        (math.floor(Formula(lambda _: 1.9)), 1, float),
+        (math.floor(Formula(lambda _: -1.9)), -2, float),
+        (math.floor(Formula(lambda _: Decimal("1.3"))), Decimal(1), Decimal),
+        (math.floor(Formula(lambda _: Decimal("1.9"))), Decimal(1), Decimal),
+        (math.floor(Formula(lambda _: Decimal("-1.9"))), Decimal(-2), Decimal),
+        # ceil
+        (math.ceil(Formula(lambda _: 1)), 1, int),
+        (math.ceil(Formula(lambda _: 1.2)), 2, float),
+        (math.ceil(Formula(lambda _: -1.2)), -1, float),
+        (math.ceil(Formula(lambda _: 1.9)), 2, float),
+        (math.ceil(Formula(lambda _: -1.9)), -1, float),
+        (math.ceil(Formula(lambda _: Decimal("1.3"))), Decimal(2), Decimal),
+        (math.ceil(Formula(lambda _: Decimal("1.9"))), Decimal(2), Decimal),
+        (math.ceil(Formula(lambda _: Decimal("-1.9"))), Decimal(-1), Decimal),
+        # trunc
+        (math.trunc(Formula(lambda _: 1)), 1, int),
+        (math.trunc(Formula(lambda _: 1.2)), 1, float),
+        (math.trunc(Formula(lambda _: -1.2)), -1, float),
+        (math.trunc(Formula(lambda _: 1.9)), 1, float),
+        (math.trunc(Formula(lambda _: -1.9)), -1, float),
+        (math.trunc(Formula(lambda _: Decimal("1.3"))), Decimal(1), Decimal),
+        (math.trunc(Formula(lambda _: Decimal("1.9"))), Decimal(1), Decimal),
+        (math.trunc(Formula(lambda _: Decimal("-1.9"))), Decimal(-1), Decimal),
+        (math.trunc(Formula(lambda _: Decimal("-2.9"))), Decimal(-2), Decimal),
+        (math.trunc(Formula(lambda _: Decimal("-102.9"))), Decimal(-102), Decimal),
+        # round
+        (round(Formula(lambda _: 1)), 1, int),
+        (round(Formula(lambda _: 1.2)), 1, float),
+        (round(Formula(lambda _: -1.2)), -1, float),
+        (round(Formula(lambda _: 1.9)), 2, float),
+        (round(Formula(lambda _: -1.9)), -2, float),
+        (round(Formula(lambda _: Decimal("1.3"))), Decimal(1), Decimal),
+        (round(Formula(lambda _: Decimal("1.9"))), Decimal(2), Decimal),
+        (round(Formula(lambda _: Decimal("-1.9"))), Decimal(-2), Decimal),
+        (round(Formula(lambda _: Decimal("-2.9"))), Decimal(-3), Decimal),
+        (round(Formula(lambda _: Decimal("-102.9"))), Decimal(-103), Decimal),
+        # round with ndigits
+        # --- ndigits is None (Default) ---
+        (round(Formula(lambda _: 1.5)), 2, float),
+        (round(Formula(lambda _: 2.5)), 2, float),  # Banker's rounding: 2.5 -> 2
+        (round(Formula(lambda _: -1.5)), -2, float),
+        (round(Formula(lambda _: Decimal("2.5"))), Decimal(2), Decimal),
+        (round(Formula(lambda _: Decimal("3.5"))), Decimal(4), Decimal),
+        # --- ndigits = 0 ---
+        (round(Formula(lambda _: 1.5), ndigits=0), 2.0, float),
+        (round(Formula(lambda _: 2.5), ndigits=0), 2.0, float),
+        (round(Formula(lambda _: -1.5), ndigits=0), -2.0, float),
+        (round(Formula(lambda _: 10), ndigits=0), 10, int),
+        (round(Formula(lambda _: Decimal("2.5")), ndigits=0), Decimal(2), Decimal),
+        (round(Formula(lambda _: Decimal("3.5")), ndigits=0), Decimal(4), Decimal),
+        # --- Negative ndigits (Rounding to powers of 10) ---
+        (round(Formula(lambda _: 1234), ndigits=-1), 1230, int),
+        (round(Formula(lambda _: 1250), ndigits=-2), 1200, int),  # Banker's rounding: 1250 -> 1200
+        (round(Formula(lambda _: 1350), ndigits=-2), 1400, int),
+        (round(Formula(lambda _: 1234.56), ndigits=-2), 1200.0, float),
+        (round(Formula(lambda _: -1250), ndigits=-2), -1200, int),
+        (round(Formula(lambda _: Decimal(1250)), ndigits=-2), Decimal(1200), Decimal),
+        (round(Formula(lambda _: Decimal(1350)), ndigits=-2), Decimal(1400), Decimal),
+        # --- Banker's Rounding Ties (Round half to even) ---
+        (round(Formula(lambda _: 1.25), ndigits=1), 1.2, float),
+        (round(Formula(lambda _: 1.35), ndigits=1), 1.4, float),
+        (round(Formula(lambda _: -1.25), ndigits=1), -1.2, float),
+        (round(Formula(lambda _: -1.35), ndigits=1), -1.4, float),
+        (round(Formula(lambda _: Decimal("1.25")), ndigits=1), Decimal("1.2"), Decimal),
+        (round(Formula(lambda _: Decimal("1.35")), ndigits=1), Decimal("1.4"), Decimal),
+        # --- Integer inputs with positive ndigits ---
+        (round(Formula(lambda _: 42), ndigits=2), 42, int),
+        (round(Formula(lambda _: 0), ndigits=5), 0, int),
+        (round(Formula(lambda _: Decimal(42)), ndigits=2), Decimal(42), Decimal),
+        # --- Special zero & floating point values ---
+        (round(Formula(lambda _: 0.0), ndigits=2), 0.0, float),
+        (round(Formula(lambda _: -0.0), ndigits=1), -0.0, float),
+        (round(Formula(lambda _: Decimal("0.000")), ndigits=2), Decimal("0.00"), Decimal),
+        # --- Large ndigits (exceeding actual precision) ---
+        (round(Formula(lambda _: 1.23), ndigits=10), 1.23, float),
+        (round(Formula(lambda _: Decimal("1.23")), ndigits=10), Decimal("1.23"), Decimal),
+    ),
+)
+def test_wrapping_formula(
+    formula: Formula[Any],
+    expected_result: Any,
+    expected_result_type: type[Any],
+) -> None:
+    assert formula(None) == expected_result
+    assert isinstance(formula(None), expected_result_type)
+
+
+@pytest.mark.parametrize(
     "n1, n2, expected_result, expected_result_type, operator_fn",
     (
         #####################################################################
@@ -280,7 +375,6 @@ def test_abs_formulas() -> None:
         (Decimal(2), 2, Decimal(4), Decimal, operator.pow),
         (Decimal(2), 2.0, Decimal(4), Decimal, operator.pow),
         (Decimal(2), Decimal(2), Decimal(4), Decimal, operator.pow),
-        # TODO: add more tests for math functions like floor, ceil, etc. especially for Decimal
     ),
 )
 def test_formula_add_operator(
