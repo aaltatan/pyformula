@@ -1,4 +1,6 @@
-from .compiler import FormulaCompiler, FormulaDict, is_formula_dict
+from .compiler.checkers import is_formula_dict
+from .compiler.compiler import FormulaCompiler
+from .compiler.models import FormulaDict
 from .exceptions import (
     FormulaAlreadyRegisteredError,
     FormulaNotFoundError,

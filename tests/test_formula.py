@@ -280,6 +280,7 @@ def test_abs_formulas() -> None:
         (Decimal(2), 2, Decimal(4), Decimal, operator.pow),
         (Decimal(2), 2.0, Decimal(4), Decimal, operator.pow),
         (Decimal(2), Decimal(2), Decimal(4), Decimal, operator.pow),
+        # TODO: add more tests for math functions like floor, ceil, etc. especially for Decimal
     ),
 )
 def test_formula_add_operator(

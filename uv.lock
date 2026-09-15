@@ -137,6 +137,15 @@ wheels = [
 ]
 
 [[package]]
+name = "dill"
+version = "0.4.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/81/e1/56027a71e31b02ddc53c7d65b01e68edf64dea2932122fe7746a516f75d5/dill-0.4.1.tar.gz", hash = "sha256:423092df4182177d4d8ba8290c8a5b640c66ab35ec7da59ccfa00f6fa3eea5fa", size = 187315, upload-time = "2026-01-19T02:36:56.85Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl", hash = "sha256:1e1ce33e978ae97fcfcff5638477032b801c46c7c65cf717f95fbc2248f79a9d", size = 120019, upload-time = "2026-01-19T02:36:55.663Z" },
+]
+
+[[package]]
 name = "executing"
 version = "2.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -152,6 +161,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730", size = 20503, upload-time = "2025-10-18T21:55:43.219Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
+]
+
+[[package]]
+name = "latexify-py"
+version = "0.4.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dill" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c1/66/28097e41eb5bcaa6b17557517322cb2ce65c583d8208c91245df40fd8e8e/latexify_py-0.4.4.tar.gz", hash = "sha256:f89274984811fb5b1436c98670814b21502cb34a0becadababcf3e1ec84e426e", size = 29729, upload-time = "2024-12-20T07:02:51.478Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/0e/ce3ed3554ba3d37143d5aae1b8733220a29e26306680a67ee53ed373cd17/latexify_py-0.4.4-py3-none-any.whl", hash = "sha256:5aa9c31a5ec7c6d94f67e24334f862f0c576d74a124c36d2712c12fe46f82900", size = 38641, upload-time = "2024-12-20T07:02:49.924Z" },
 ]
 
 [[package]]
@@ -180,6 +201,7 @@ source = { editable = "." }
 [package.dev-dependencies]
 dev = [
     { name = "devtools" },
+    { name = "latexify-py" },
     { name = "pyspecification" },
     { name = "pytest" },
     { name = "pytest-coverage" },
@@ -190,6 +212,7 @@ dev = [
 [package.metadata.requires-dev]
 dev = [
     { name = "devtools", specifier = ">=0.12.2" },
+    { name = "latexify-py", specifier = ">=0.4.4" },
     { name = "pyspecification", specifier = ">=2.0.1" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "pytest-coverage", specifier = ">=0.0" },

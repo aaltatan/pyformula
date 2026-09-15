@@ -1,3 +1,4 @@
+import math
 from collections.abc import Callable
 from typing import cast
 
@@ -18,46 +19,46 @@ class Formula[T]:
     def __call__(self, obj: T) -> NumberType:
         return self._fn(obj)
 
-    def __add__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __add__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("add", other, reverse=False)
 
-    def __radd__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __radd__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("add", other, reverse=True)
 
-    def __sub__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __sub__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("subtract", other, reverse=False)
 
-    def __rsub__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __rsub__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("subtract", other, reverse=True)
 
-    def __mul__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __mul__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("multiply", other, reverse=False)
 
-    def __rmul__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __rmul__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("multiply", other, reverse=True)
 
-    def __truediv__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __truediv__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("divide", other, reverse=False)
 
-    def __rtruediv__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __rtruediv__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("divide", other, reverse=True)
 
-    def __mod__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __mod__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("modulo", other, reverse=False)
 
-    def __rmod__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __rmod__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("modulo", other, reverse=True)
 
-    def __floordiv__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __floordiv__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("floor_divide", other, reverse=False)
 
-    def __rfloordiv__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __rfloordiv__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("floor_divide", other, reverse=True)
 
-    def __pow__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __pow__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("power", other, reverse=False)
 
-    def __rpow__(self, other: "Formula[T] | NumberType") -> "Formula[T]":
+    def __rpow__(self, other: "Formula[T] | NumberType", /) -> "Formula[T]":
         return self._operate("power", other, reverse=True)
 
     def __pos__(self) -> "Formula[T]":
@@ -68,6 +69,15 @@ class Formula[T]:
 
     def __abs__(self) -> "Formula[T]":
         return Formula(lambda obj: abs(self(obj)), name=f"|{self}|")
+
+    def __floor__(self) -> "Formula[T]":
+        return Formula(lambda obj: math.floor(self(obj)), name=f"floor({self})")
+
+    def __ceil__(self) -> "Formula[T]":
+        return Formula(lambda obj: math.ceil(self(obj)), name=f"ceil({self})")
+
+    def __trunc__(self) -> "Formula[T]":
+        return Formula(lambda obj: math.trunc(self(obj)), name=f"trunc({self})")
 
     def __str__(self) -> str:
         if self._name is not None:

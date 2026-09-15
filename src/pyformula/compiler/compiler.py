@@ -1,69 +1,22 @@
-from typing import TypeAlias, TypedDict, TypeGuard, cast
+# ruff: noqa: PLR0911
+import math
+from typing import cast
 
-from .exceptions import FormulaNotFoundError
-from .formula import Formula
-from .models import NumberType, OperatorType, is_number
-from .operator import OPERATORS
+from pyformula.exceptions import FormulaNotFoundError
+from pyformula.formula import Formula
+from pyformula.models import is_number
+from pyformula.operator import OPERATORS
 
-# -----------------------
-# models
-# -----------------------
-
-
-ExpressionType: TypeAlias = "FormulaDict | WrapperType | NumberType"
-WrapperType: TypeAlias = "str | NegativeWrapperDict | AbsWrapperDict | PositiveWrapperDict"
-
-
-class FormulaDict(TypedDict):
-    operator: OperatorType
-    expressions: list[ExpressionType]
-
-
-class PositiveWrapperDict(TypedDict):
-    positive: WrapperType
-
-
-class NegativeWrapperDict(TypedDict):
-    negative: WrapperType
-
-
-class AbsWrapperDict(TypedDict):
-    absolute: WrapperType
-
-
-# -----------------------
-# checkers
-# -----------------------
-
-
-def is_wrapped_dict(obj: object, key: str) -> bool:
-    return isinstance(obj, dict) and key in obj and len(obj.keys()) == 1
-
-
-def is_positive_wrapper_dict(obj: object) -> TypeGuard[PositiveWrapperDict]:
-    return is_wrapped_dict(obj, "positive")
-
-
-def is_negative_wrapper_dict(obj: object) -> TypeGuard[NegativeWrapperDict]:
-    return is_wrapped_dict(obj, "negative")
-
-
-def is_absolute_wrapper_dict(obj: object) -> TypeGuard[AbsWrapperDict]:
-    return is_wrapped_dict(obj, "absolute")
-
-
-def is_formula_dict(obj: object) -> TypeGuard[FormulaDict]:
-    return (
-        isinstance(obj, dict)
-        and "operator" in obj
-        and "expressions" in obj
-        and len(obj.keys()) == 2
-    )
-
-
-# -----------------------
-# compiler
-# -----------------------
+from .checkers import (
+    is_absolute_wrapper_dict,
+    is_ceil_wrapper_dict,
+    is_floor_wrapper_dict,
+    is_formula_dict,
+    is_negative_wrapper_dict,
+    is_positive_wrapper_dict,
+    is_trunc_wrapper_dict,
+)
+from .models import ExpressionType, FormulaDict
 
 
 class FormulaCompiler[T]:
@@ -98,6 +51,15 @@ class FormulaCompiler[T]:
 
         if is_absolute_wrapper_dict(expression):
             return abs(self._compile_wrapped_expression(expression["absolute"]))
+
+        if is_floor_wrapper_dict(expression):
+            return math.floor(self._compile_wrapped_expression(expression["floor"]))
+
+        if is_ceil_wrapper_dict(expression):
+            return math.ceil(self._compile_wrapped_expression(expression["ceil"]))
+
+        if is_trunc_wrapper_dict(expression):
+            return math.trunc(self._compile_wrapped_expression(expression["trunc"]))
 
         if not isinstance(expression, str):
             msg = f"Invalid expression: {expression}"

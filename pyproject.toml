@@ -19,6 +19,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "devtools>=0.12.2",
+    "latexify-py>=0.4.4",
     "pyspecification>=2.0.1",
     "pytest>=9.1.1",
     "pytest-coverage>=0.0",
