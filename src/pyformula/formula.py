@@ -1,3 +1,4 @@
+import decimal
 import math
 from collections.abc import Callable
 from typing import cast
@@ -71,13 +72,31 @@ class Formula[T]:
         return Formula(lambda obj: abs(self(obj)), name=f"|{self}|")
 
     def __floor__(self) -> "Formula[T]":
-        return Formula(lambda obj: math.floor(self(obj)), name=f"floor({self})")
+        return self._wrap(math.floor, decimal.ROUND_FLOOR)
 
     def __ceil__(self) -> "Formula[T]":
-        return Formula(lambda obj: math.ceil(self(obj)), name=f"ceil({self})")
+        return self._wrap(math.ceil, decimal.ROUND_CEILING)
 
     def __trunc__(self) -> "Formula[T]":
-        return Formula(lambda obj: math.trunc(self(obj)), name=f"trunc({self})")
+        return self._wrap(math.trunc, decimal.ROUND_DOWN)
+
+    def __round__(self, ndigits: int | None = None) -> "Formula[T]":
+        def inner(obj: T) -> NumberType:
+            value = self(obj)
+
+            if isinstance(value, decimal.Decimal):
+                rounded = round(value, ndigits)
+                if isinstance(rounded, decimal.Decimal):
+                    return rounded
+
+                return decimal.Decimal.from_float(rounded)
+
+            if isinstance(value, float):
+                return float(round(value, ndigits))
+
+            return int(round(value, ndigits))
+
+        return Formula(inner, name=f"round({self}, {ndigits})")
 
     def __str__(self) -> str:
         if self._name is not None:
@@ -90,6 +109,20 @@ class Formula[T]:
 
     def __repr__(self) -> str:
         return f"Formula({self})"
+
+    def _wrap(self, fn: Callable[[NumberType], NumberType], decimal_rounding: str) -> "Formula[T]":
+        def inner(obj: T) -> NumberType:
+            value = self(obj)
+
+            if isinstance(value, decimal.Decimal):
+                return value.to_integral_value(decimal_rounding)
+
+            if isinstance(value, float):
+                return float(fn(value))
+
+            return int(fn(value))
+
+        return Formula(inner, name=f"{fn.__name__}({self})")
 
     def _operate(
         self,

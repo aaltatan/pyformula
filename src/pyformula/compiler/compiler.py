@@ -14,6 +14,7 @@ from .checkers import (
     is_formula_dict,
     is_negative_wrapper_dict,
     is_positive_wrapper_dict,
+    is_round_wrapper_dict,
     is_trunc_wrapper_dict,
 )
 from .models import ExpressionType, FormulaDict
@@ -60,6 +61,12 @@ class FormulaCompiler[T]:
 
         if is_trunc_wrapper_dict(expression):
             return math.trunc(self._compile_wrapped_expression(expression["trunc"]))
+
+        if is_round_wrapper_dict(expression):
+            return round(
+                self._compile_wrapped_expression(expression["round"]),
+                ndigits=expression["ndigits"],
+            )
 
         if not isinstance(expression, str):
             msg = f"Invalid expression: {expression}"

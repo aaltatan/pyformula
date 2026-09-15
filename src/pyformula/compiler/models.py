@@ -32,6 +32,11 @@ class TruncWrapperDict(TypedDict):
     trunc: "WrapperType"
 
 
+class RoundWrapperDict(TypedDict):
+    round: "WrapperType"
+    ndigits: int
+
+
 ExpressionType: TypeAlias = "FormulaDict | WrapperType | NumberType"
 WrapperType: TypeAlias = (
     str
@@ -41,4 +46,5 @@ WrapperType: TypeAlias = (
     | FloorWrapperDict
     | CeilWrapperDict
     | TruncWrapperDict
+    | RoundWrapperDict
 )
