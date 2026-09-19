@@ -6,11 +6,10 @@ from .exceptions import (
     FormulaNotFoundError,
     FormulaNotRegisteredError,
 )
-from .formula import Formula
+from .formula import Formula, formula
 from .models import NumberType, OperatorType, is_number
 from .operator import OperatorFn
 from .registry import FormulasRegistry
-from .variable import variable
 
 __all__ = [
     "Formula",
@@ -23,7 +22,7 @@ __all__ = [
     "NumberType",
     "OperatorFn",
     "OperatorType",
+    "formula",
     "is_formula_dict",
     "is_number",
-    "variable",
 ]

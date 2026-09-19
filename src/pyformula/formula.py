@@ -1,6 +1,6 @@
 import decimal
-import math
 from collections.abc import Callable
+from functools import wraps
 from typing import cast
 
 from .models import NumberType, OperatorType
@@ -71,15 +71,6 @@ class Formula[T]:
     def __abs__(self) -> "Formula[T]":
         return Formula(lambda obj: abs(self(obj)), name=f"|{self}|")
 
-    def __floor__(self) -> "Formula[T]":
-        return self._wrap(math.floor, decimal.ROUND_FLOOR)
-
-    def __ceil__(self) -> "Formula[T]":
-        return self._wrap(math.ceil, decimal.ROUND_CEILING)
-
-    def __trunc__(self) -> "Formula[T]":
-        return self._wrap(math.trunc, decimal.ROUND_DOWN)
-
     def __round__(self, ndigits: int | None = None) -> "Formula[T]":
         def inner(obj: T) -> NumberType:
             value = self(obj)
@@ -110,20 +101,6 @@ class Formula[T]:
     def __repr__(self) -> str:
         return f"Formula({self})"
 
-    def _wrap(self, fn: Callable[[NumberType], NumberType], decimal_rounding: str) -> "Formula[T]":
-        def inner(obj: T) -> NumberType:
-            value = self(obj)
-
-            if isinstance(value, decimal.Decimal):
-                return value.to_integral_value(decimal_rounding)
-
-            if isinstance(value, float):
-                return float(fn(value))
-
-            return int(fn(value))
-
-        return Formula(inner, name=f"{fn.__name__}({self})")
-
     def _operate(
         self,
         operator: OperatorType,
@@ -143,3 +120,14 @@ class Formula[T]:
             )
 
         return Formula(inner, name=f"({self} {symbol} {other})")
+
+
+def formula[T](*, name: str | None = None) -> Callable[[Callable[[T], NumberType]], Formula[T]]:
+    def decorator(fn: Callable[[T], NumberType]) -> Formula[T]:
+        @wraps(fn)
+        def wrapper(fn: Callable[[T], NumberType]) -> Callable[[T], NumberType]:
+            return fn
+
+        return Formula(wrapper(fn), name=name or fn.__name__)
+
+    return decorator

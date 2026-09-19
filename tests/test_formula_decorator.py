@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from pyformula import variable
+from pyformula import formula
 
 
 @dataclass(kw_only=True)
@@ -12,24 +12,24 @@ class Employee:
     hourly_rate: float = 0.0
 
 
-@variable()
+@formula()
 def salary(employee: Employee) -> float:
     return employee.salary
 
 
-@variable()
+@formula()
 def hourly_rate(employee: Employee) -> float:
     return employee.hourly_rate
 
 
-@variable(name="days")
+@formula(name="days")
 def working_days(_: Employee) -> float:
     return 30
 
 
 def test_variable() -> None:
     employee = Employee(name="John Doe", salary=1000, hourly_rate=20)
-    formula = salary + hourly_rate + working_days + 3
+    fm = salary + hourly_rate + working_days + 3
 
-    assert repr(formula) == "Formula((((salary + hourly_rate) + days) + 3))"
-    assert formula(employee) == 1_053
+    assert repr(fm) == "Formula((((salary + hourly_rate) + days) + 3))"
+    assert fm(employee) == 1_053

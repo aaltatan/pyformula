@@ -4,6 +4,7 @@ from typing import cast
 
 from pyformula.exceptions import FormulaNotFoundError
 from pyformula.formula import Formula
+from pyformula.math import wrap
 from pyformula.models import is_number
 from pyformula.operator import OPERATORS
 
@@ -54,13 +55,13 @@ class FormulaCompiler[T]:
             return abs(self._compile_wrapped_expression(expression["absolute"]))
 
         if is_floor_wrapper_dict(expression):
-            return math.floor(self._compile_wrapped_expression(expression["floor"]))
+            return wrap(self._compile_wrapped_expression(expression["floor"]), math_fn=math.floor)
 
         if is_ceil_wrapper_dict(expression):
-            return math.ceil(self._compile_wrapped_expression(expression["ceil"]))
+            return wrap(self._compile_wrapped_expression(expression["ceil"]), math_fn=math.ceil)
 
         if is_trunc_wrapper_dict(expression):
-            return math.trunc(self._compile_wrapped_expression(expression["trunc"]))
+            return wrap(self._compile_wrapped_expression(expression["trunc"]), math_fn=math.trunc)
 
         if is_round_wrapper_dict(expression):
             return round(

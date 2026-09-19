@@ -1,9 +1,8 @@
 from collections.abc import Callable
 
 from .exceptions import FormulaAlreadyRegisteredError, FormulaNotRegisteredError
-from .formula import Formula
+from .formula import Formula, formula
 from .models import NumberType
-from .variable import variable
 
 
 class FormulasRegistry[T]:
@@ -61,11 +60,11 @@ class FormulasRegistry[T]:
         if hidden:
             self._hidden_fns.add(reg_name)
 
-        formula = variable(name=reg_name)(fn)
+        fm = formula(name=reg_name)(fn)
 
         if description or fn.__doc__:
-            formula.__doc__ = description or fn.__doc__
+            fm.__doc__ = description or fn.__doc__
 
-        self._fns[reg_name] = formula
+        self._fns[reg_name] = fm
 
-        return formula
+        return fm
