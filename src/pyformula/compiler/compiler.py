@@ -54,6 +54,12 @@ class FormulaCompiler[T]:
         if is_absolute_wrapper_dict(expression):
             return abs(self._compile_wrapped_expression(expression["absolute"]))
 
+        if is_round_wrapper_dict(expression):
+            return round(
+                self._compile_wrapped_expression(expression["round"]),
+                ndigits=expression["ndigits"],
+            )
+
         if is_floor_wrapper_dict(expression):
             return wrap(self._compile_wrapped_expression(expression["floor"]), math_fn=math.floor)
 
@@ -62,12 +68,6 @@ class FormulaCompiler[T]:
 
         if is_trunc_wrapper_dict(expression):
             return wrap(self._compile_wrapped_expression(expression["trunc"]), math_fn=math.trunc)
-
-        if is_round_wrapper_dict(expression):
-            return round(
-                self._compile_wrapped_expression(expression["round"]),
-                ndigits=expression["ndigits"],
-            )
 
         if not isinstance(expression, str):
             msg = f"Invalid expression: {expression}"

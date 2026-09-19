@@ -20,6 +20,11 @@ class AbsWrapperDict(TypedDict):
     absolute: "WrapperType"
 
 
+class RoundWrapperDict(TypedDict):
+    round: "WrapperType"
+    ndigits: int
+
+
 class FloorWrapperDict(TypedDict):
     floor: "WrapperType"
 
@@ -30,11 +35,6 @@ class CeilWrapperDict(TypedDict):
 
 class TruncWrapperDict(TypedDict):
     trunc: "WrapperType"
-
-
-class RoundWrapperDict(TypedDict):
-    round: "WrapperType"
-    ndigits: int
 
 
 ExpressionType: TypeAlias = "FormulaDict | WrapperType | NumberType"

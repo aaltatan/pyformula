@@ -1,24 +1,25 @@
 from collections.abc import Callable
 
 from .exceptions import FormulaAlreadyRegisteredError, FormulaNotRegisteredError
-from .formula import Formula, formula
+from .formula import Formula
 from .models import NumberType
+from .variable import variable
 
 
-class FormulasRegistry[T]:
+class VariablesRegistry[T]:
     def __init__(self) -> None:
-        self._fns: dict[str, Formula[T]] = {}
-        self._hidden_fns: set[str] = set()
+        self._variables: dict[str, Formula[T]] = {}
+        self._hidden: set[str] = set()
 
     @property
-    def fns(self) -> dict[str, Formula[T]]:
-        return self._fns
+    def variables(self) -> dict[str, Formula[T]]:
+        return self._variables
 
     def __getitem__(self, name: str) -> Formula[T]:
-        if name in self._hidden_fns or name not in self._fns:
+        if name in self._hidden or name not in self._variables:
             raise FormulaNotRegisteredError(name)
 
-        return self._fns[name]
+        return self._variables[name]
 
     def variable(
         self,
@@ -54,17 +55,17 @@ class FormulasRegistry[T]:
     ) -> Formula[T]:
         reg_name = name or fn.__name__
 
-        if reg_name in self._fns:
+        if reg_name in self._variables:
             raise FormulaAlreadyRegisteredError(reg_name)
 
         if hidden:
-            self._hidden_fns.add(reg_name)
+            self._hidden.add(reg_name)
 
-        fm = formula(name=reg_name)(fn)
+        var = variable(name=reg_name)(fn)
 
         if description or fn.__doc__:
-            fm.__doc__ = description or fn.__doc__
+            var.__doc__ = description or fn.__doc__
 
-        self._fns[reg_name] = fm
+        self._variables[reg_name] = var
 
-        return fm
+        return var
