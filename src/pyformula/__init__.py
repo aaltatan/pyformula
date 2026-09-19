@@ -1,13 +1,12 @@
-from .compiler.checkers import is_formula_dict
 from .compiler.compiler import FormulaCompiler
-from .compiler.models import FormulaDict
+from .compiler.models import FormulaDict, is_formula_dict
 from .exceptions import (
     FormulaAlreadyRegisteredError,
     FormulaNotFoundError,
     FormulaNotRegisteredError,
 )
 from .formula import Formula
-from .models import NumberType, OperatorType, is_number
+from .models import NumberType, OperatorType
 from .operator import OperatorFn
 from .registry import VariablesRegistry
 from .variable import variable
@@ -24,6 +23,5 @@ __all__ = [
     "OperatorType",
     "VariablesRegistry",
     "is_formula_dict",
-    "is_number",
     "variable",
 ]

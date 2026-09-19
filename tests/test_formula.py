@@ -1,4 +1,3 @@
-import math
 import operator
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -6,7 +5,7 @@ from typing import Any, Literal
 
 import pytest
 from pyformula import Formula, NumberType, OperatorFn
-from pyformula.math import wrap
+from pyformula.math import ceil, floor, sqrt, trunc
 
 
 @dataclass(kw_only=True)
@@ -173,43 +172,6 @@ def test_abs_formulas() -> None:
 @pytest.mark.parametrize(
     "formula, expected_result, expected_result_type",
     (
-        # floor
-        (wrap(Formula(lambda _: 1), math_fn=math.floor), 1, int),
-        (wrap(Formula(lambda _: 1.2), math_fn=math.floor), 1, int),
-        (wrap(Formula(lambda _: -1.2), math_fn=math.floor), -2, int),
-        (wrap(Formula(lambda _: 1.9), math_fn=math.floor), 1, int),
-        (wrap(Formula(lambda _: -1.9), math_fn=math.floor), -2, int),
-        (wrap(Formula(lambda _: Decimal("1.3")), math_fn=math.floor), Decimal(1), int),
-        (wrap(Formula(lambda _: Decimal("1.9")), math_fn=math.floor), Decimal(1), int),
-        (wrap(Formula(lambda _: Decimal("-1.9")), math_fn=math.floor), Decimal(-2), int),
-        # ceil
-        (wrap(Formula(lambda _: 1), math_fn=math.ceil), 1, int),
-        (wrap(Formula(lambda _: 1.2), math_fn=math.ceil), 2, int),
-        (wrap(Formula(lambda _: -1.2), math_fn=math.ceil), -1, int),
-        (wrap(Formula(lambda _: 1.9), math_fn=math.ceil), 2, int),
-        (wrap(Formula(lambda _: -1.9), math_fn=math.ceil), -1, int),
-        (wrap(Formula(lambda _: Decimal("1.3")), math_fn=math.ceil), Decimal(2), int),
-        (wrap(Formula(lambda _: Decimal("1.9")), math_fn=math.ceil), Decimal(2), int),
-        (wrap(Formula(lambda _: Decimal("-1.9")), math_fn=math.ceil), Decimal(-1), int),
-        # trunc
-        (wrap(Formula(lambda _: 1), math_fn=math.trunc), 1, int),
-        (wrap(Formula(lambda _: 1.2), math_fn=math.trunc), 1, int),
-        (wrap(Formula(lambda _: -1.2), math_fn=math.trunc), -1, int),
-        (wrap(Formula(lambda _: 1.9), math_fn=math.trunc), 1, int),
-        (wrap(Formula(lambda _: -1.9), math_fn=math.trunc), -1, int),
-        (wrap(Formula(lambda _: Decimal("1.3")), math_fn=math.trunc), Decimal(1), int),
-        (wrap(Formula(lambda _: Decimal("1.9")), math_fn=math.trunc), Decimal(1), int),
-        (wrap(Formula(lambda _: Decimal("-1.9")), math_fn=math.trunc), Decimal(-1), int),
-        (wrap(Formula(lambda _: Decimal("-2.9")), math_fn=math.trunc), Decimal(-2), int),
-        (wrap(Formula(lambda _: Decimal("-102.9")), math_fn=math.trunc), Decimal(-102), int),
-        # sqrt
-        (wrap(Formula(lambda _: 1), math_fn=math.sqrt), 1, float),
-        (wrap(Formula(lambda _: 9), math_fn=math.sqrt), 3, float),
-        (wrap(Formula(lambda _: 9.0), math_fn=math.sqrt), 3, float),
-        (wrap(Formula(lambda _: Decimal(1)), math_fn=math.sqrt), 1, float),
-        (wrap(Formula(lambda _: Decimal(9)), math_fn=math.sqrt), 3, float),
-        (wrap(Formula(lambda _: Decimal(81)), math_fn=math.sqrt), 9, float),
-        (wrap(Formula(lambda _: Decimal(144)), math_fn=math.sqrt), 12, float),
         # round
         (round(Formula(lambda _: 1)), 1, int),
         (round(Formula(lambda _: 1.2)), 1, float),
@@ -263,7 +225,58 @@ def test_abs_formulas() -> None:
         (round(Formula(lambda _: Decimal("1.23")), ndigits=10), Decimal("1.23"), Decimal),
     ),
 )
-def test_wrapping_formula(
+def test_rounding_formula(
+    formula: Formula[Any],
+    expected_result: Any,
+    expected_result_type: type[Any],
+) -> None:
+    assert formula(None) == expected_result
+    assert isinstance(formula(None), expected_result_type)
+
+
+@pytest.mark.parametrize(
+    "formula, expected_result, expected_result_type",
+    (
+        # floor
+        (floor(Formula(lambda _: 1)), 1, int),
+        (floor(Formula(lambda _: 1.2)), 1, int),
+        (floor(Formula(lambda _: -1.2)), -2, int),
+        (floor(Formula(lambda _: 1.9)), 1, int),
+        (floor(Formula(lambda _: -1.9)), -2, int),
+        (floor(Formula(lambda _: Decimal("1.3"))), Decimal(1), int),
+        (floor(Formula(lambda _: Decimal("1.9"))), Decimal(1), int),
+        (floor(Formula(lambda _: Decimal("-1.9"))), Decimal(-2), int),
+        # ceil
+        (ceil(Formula(lambda _: 1)), 1, int),
+        (ceil(Formula(lambda _: 1.2)), 2, int),
+        (ceil(Formula(lambda _: -1.2)), -1, int),
+        (ceil(Formula(lambda _: 1.9)), 2, int),
+        (ceil(Formula(lambda _: -1.9)), -1, int),
+        (ceil(Formula(lambda _: Decimal("1.3"))), Decimal(2), int),
+        (ceil(Formula(lambda _: Decimal("1.9"))), Decimal(2), int),
+        (ceil(Formula(lambda _: Decimal("-1.9"))), Decimal(-1), int),
+        # trunc
+        (trunc(Formula(lambda _: 1)), 1, int),
+        (trunc(Formula(lambda _: 1.2)), 1, int),
+        (trunc(Formula(lambda _: -1.2)), -1, int),
+        (trunc(Formula(lambda _: 1.9)), 1, int),
+        (trunc(Formula(lambda _: -1.9)), -1, int),
+        (trunc(Formula(lambda _: Decimal("1.3"))), Decimal(1), int),
+        (trunc(Formula(lambda _: Decimal("1.9"))), Decimal(1), int),
+        (trunc(Formula(lambda _: Decimal("-1.9"))), Decimal(-1), int),
+        (trunc(Formula(lambda _: Decimal("-2.9"))), Decimal(-2), int),
+        (trunc(Formula(lambda _: Decimal("-102.9"))), Decimal(-102), int),
+        # sqrt
+        (sqrt(Formula(lambda _: 1)), 1, float),
+        (sqrt(Formula(lambda _: 9)), 3, float),
+        (sqrt(Formula(lambda _: 9.0)), 3, float),
+        (sqrt(Formula(lambda _: Decimal(1))), 1, float),
+        (sqrt(Formula(lambda _: Decimal(9))), 3, float),
+        (sqrt(Formula(lambda _: Decimal(81))), 9, float),
+        (sqrt(Formula(lambda _: Decimal(144))), 12, float),
+    ),
+)
+def test_math_wrapping_formula(
     formula: Formula[Any],
     expected_result: Any,
     expected_result_type: type[Any],

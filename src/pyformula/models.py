@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Literal, TypeAlias, TypeGuard
+from typing import Literal, TypeAlias
 
 NumberType: TypeAlias = Decimal | int | float
 OperatorType: TypeAlias = Literal[
@@ -11,7 +11,3 @@ OperatorType: TypeAlias = Literal[
     "power",
     "floor_divide",
 ]
-
-
-def is_number(obj: object) -> TypeGuard[NumberType]:
-    return isinstance(obj, (int, float, Decimal)) and not isinstance(obj, bool)
