@@ -41,8 +41,8 @@ class VariablesRegistry[T]:
         name: str | None = None,
         description: str | None = None,
         hidden: bool = False,
-    ) -> Formula[T]:
-        return self._register(fn, name=name, description=description, hidden=hidden)
+    ) -> None:
+        self._register(fn, name=name, description=description, hidden=hidden)
 
     def _register(
         self,
