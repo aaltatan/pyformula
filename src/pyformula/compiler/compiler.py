@@ -1,24 +1,56 @@
 # ruff: noqa: PLR0911, C901
+from collections.abc import Callable
 from decimal import Decimal
-from typing import cast
+from typing import Any, cast
 
+from pyformula import math
 from pyformula.exceptions import FormulaNotFoundError
 from pyformula.formula import Formula
-from pyformula.math import ceil, floor, trunc
 from pyformula.operator import OPERATORS
 
 from .models import (
     ExpressionType,
     FormulaDict,
     is_absolute_wrapper_dict,
-    is_ceil_wrapper_dict,
-    is_floor_wrapper_dict,
     is_formula_dict,
     is_negative_wrapper_dict,
     is_positive_wrapper_dict,
     is_round_wrapper_dict,
-    is_trunc_wrapper_dict,
 )
+
+MATHS_FNS: dict[str, Callable[[Formula[Any]], Formula[Any]]] = {
+    "ceil": math.ceil,
+    "floor": math.floor,
+    "trunc": math.trunc,
+    "sqrt": math.sqrt,
+    "cbrt": math.cbrt,
+    "exp": math.exp,
+    "exp2": math.exp2,
+    "expm1": math.expm1,
+    "log10": math.log10,
+    "log1p": math.log1p,
+    "log2": math.log2,
+    "sin": math.sin,
+    "sinh": math.sinh,
+    "asin": math.asin,
+    "asinh": math.asinh,
+    "cos": math.cos,
+    "cosh": math.cosh,
+    "acos": math.acos,
+    "acosh": math.acosh,
+    "tan": math.tan,
+    "tanh": math.tanh,
+    "atan": math.atan,
+    "atanh": math.atanh,
+    "degrees": math.degrees,
+    "radians": math.radians,
+    "erf": math.erf,
+    "erfc": math.erfc,
+    "gamma": math.gamma,
+    "lgamma": math.lgamma,
+    "fabs": math.fabs,
+    "ulp": math.ulp,
+}
 
 
 class FormulaCompiler[T]:
@@ -83,14 +115,9 @@ class FormulaCompiler[T]:
         # math operators
         # -----------------------
 
-        if is_floor_wrapper_dict(expression):
-            return floor(self._compile_expression(expression["floor"]))
-
-        if is_ceil_wrapper_dict(expression):
-            return ceil(self._compile_expression(expression["ceil"]))
-
-        if is_trunc_wrapper_dict(expression):
-            return trunc(self._compile_expression(expression["trunc"]))
+        for fn_name, math_fn in MATHS_FNS.items():
+            if fn_name in expression:
+                return math_fn(self._compile_expression(expression[fn_name]))
 
         msg = f"Invalid expression: {expression}"
         raise TypeError(msg)
