@@ -196,9 +196,9 @@ def ulp[T](fm: Formula[T], /) -> Formula[T]:
     return _wrap(fm, math_fn=builtin_math.ulp)
 
 
-# -----------------------
+# ----------------------------------------------
 # helper
-# -----------------------
+# ----------------------------------------------
 
 
 def _wrap[T](formula: Formula[T], /, *, math_fn: Callable[[float], float]) -> Formula[T]:
