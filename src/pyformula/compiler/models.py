@@ -41,7 +41,7 @@ def is_round_wrapper_dict(obj: object) -> TypeGuard[RoundWrapperDict]:
 
 
 # -----------------------
-# math operators
+# rounding
 # -----------------------
 
 
@@ -49,24 +49,149 @@ class FloorWrapperDict(TypedDict):
     floor: "WrapperType"
 
 
-def is_floor_wrapper_dict(obj: object) -> TypeGuard[FloorWrapperDict]:
-    return _is_typed_dict(obj, "floor")
-
-
 class CeilWrapperDict(TypedDict):
     ceil: "WrapperType"
-
-
-def is_ceil_wrapper_dict(obj: object) -> TypeGuard[CeilWrapperDict]:
-    return _is_typed_dict(obj, "ceil")
 
 
 class TruncWrapperDict(TypedDict):
     trunc: "WrapperType"
 
 
-def is_trunc_wrapper_dict(obj: object) -> TypeGuard[TruncWrapperDict]:
-    return _is_typed_dict(obj, "trunc")
+# -----------------------
+# roots and powers
+# -----------------------
+
+
+class SqrtWrapperDict(TypedDict):
+    sqrt: "WrapperType"
+
+
+class CbrtWrapperDict(TypedDict):
+    cbrt: "WrapperType"
+
+
+# ----------------------------------------------
+# exponential and logarithmic
+# ----------------------------------------------
+
+
+class ExpWrapperDict(TypedDict):
+    exp: "WrapperType"
+
+
+class Exp2WrapperDict(TypedDict):
+    exp2: "WrapperType"
+
+
+class Expm1WrapperDict(TypedDict):
+    expm1: "WrapperType"
+
+
+class Log10WrapperDict(TypedDict):
+    log10: "WrapperType"
+
+
+class Log1pWrapperDict(TypedDict):
+    log1p: "WrapperType"
+
+
+class Log2WrapperDict(TypedDict):
+    log2: "WrapperType"
+
+
+# ----------------------------------------------
+# trigonometry
+# ----------------------------------------------
+
+
+class SinWrapperDict(TypedDict):
+    sin: "WrapperType"
+
+
+class SinhWrapperDict(TypedDict):
+    sinh: "WrapperType"
+
+
+class AsinWrapperDict(TypedDict):
+    asin: "WrapperType"
+
+
+class AsinhWrapperDict(TypedDict):
+    asinh: "WrapperType"
+
+
+class CosWrapperDict(TypedDict):
+    cos: "WrapperType"
+
+
+class CoshWrapperDict(TypedDict):
+    cosh: "WrapperType"
+
+
+class AcosWrapperDict(TypedDict):
+    acos: "WrapperType"
+
+
+class AcoshWrapperDict(TypedDict):
+    acosh: "WrapperType"
+
+
+class TanWrapperDict(TypedDict):
+    tan: "WrapperType"
+
+
+class TanhWrapperDict(TypedDict):
+    tanh: "WrapperType"
+
+
+class AtanWrapperDict(TypedDict):
+    atan: "WrapperType"
+
+
+class AtanhWrapperDict(TypedDict):
+    atanh: "WrapperType"
+
+
+# ----------------------------------------------
+# angular conversion
+# ----------------------------------------------
+
+
+class DegreesWrapperDict(TypedDict):
+    degrees: "WrapperType"
+
+
+class RadiansWrapperDict(TypedDict):
+    radians: "WrapperType"
+
+
+# ----------------------------------------------
+# special functions
+# ----------------------------------------------
+
+
+class ErfWrapperDict(TypedDict):
+    erf: "WrapperType"
+
+
+class ErfcWrapperDict(TypedDict):
+    erfc: "WrapperType"
+
+
+class GammaWrapperDict(TypedDict):
+    gamma: "WrapperType"
+
+
+class LgammaWrapperDict(TypedDict):
+    lgamma: "WrapperType"
+
+
+class FabsWrapperDict(TypedDict):
+    fabs: "WrapperType"
+
+
+class UlpWrapperDict(TypedDict):
+    ulp: "WrapperType"
 
 
 # -----------------------
@@ -89,10 +214,43 @@ WrapperType: TypeAlias = (
     | NegativeWrapperDict
     | AbsoluteWrapperDict
     | RoundWrapperDict
-    # math operators
+    # rounding
     | FloorWrapperDict
     | CeilWrapperDict
     | TruncWrapperDict
+    # roots and powers
+    | SqrtWrapperDict
+    | CbrtWrapperDict
+    # exponential and logarithmic
+    | ExpWrapperDict
+    | Exp2WrapperDict
+    | Expm1WrapperDict
+    | Log10WrapperDict
+    | Log1pWrapperDict
+    | Log2WrapperDict
+    # trigonometry
+    | SinWrapperDict
+    | SinhWrapperDict
+    | AsinWrapperDict
+    | AsinhWrapperDict
+    | CosWrapperDict
+    | CoshWrapperDict
+    | AcosWrapperDict
+    | AcoshWrapperDict
+    | TanWrapperDict
+    | TanhWrapperDict
+    | AtanWrapperDict
+    | AtanhWrapperDict
+    # angular conversion
+    | DegreesWrapperDict
+    | RadiansWrapperDict
+    # special functions
+    | ErfWrapperDict
+    | ErfcWrapperDict
+    | GammaWrapperDict
+    | LgammaWrapperDict
+    | FabsWrapperDict
+    | UlpWrapperDict
 )
 
 
