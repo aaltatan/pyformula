@@ -255,7 +255,7 @@ WrapperType: TypeAlias = (
 
 
 def is_formula_dict(obj: object) -> TypeGuard[FormulaDict]:
-    return _is_typed_dict(obj, "operator", "expression")
+    return _is_typed_dict(obj, "operator", "expressions")
 
 
 # -----------------------
