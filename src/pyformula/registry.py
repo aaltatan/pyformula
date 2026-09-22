@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 from .exceptions import FormulaAlreadyRegisteredError, FormulaNotRegisteredError
 from .formula import Formula
-from .models import NumberType
+from .models import Number
 from .variable import variable
 
 
@@ -27,15 +27,15 @@ class VariablesRegistry[T]:
         name: str | None = None,
         description: str | None = None,
         hidden: bool = False,
-    ) -> Callable[[Callable[[T], NumberType]], Formula[T]]:
-        def decorator(fn: Callable[[T], NumberType]) -> Formula[T]:
+    ) -> Callable[[Callable[[T], Number]], Formula[T]]:
+        def decorator(fn: Callable[[T], Number]) -> Formula[T]:
             return self._register(fn, name=name, description=description, hidden=hidden)
 
         return decorator
 
     def register_variable(
         self,
-        fn: Callable[[T], NumberType],
+        fn: Callable[[T], Number],
         /,
         *,
         name: str | None = None,
@@ -46,7 +46,7 @@ class VariablesRegistry[T]:
 
     def _register(
         self,
-        fn: Callable[[T], NumberType],
+        fn: Callable[[T], Number],
         /,
         *,
         name: str | None,

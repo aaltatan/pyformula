@@ -1,8 +1,8 @@
 from decimal import Decimal
 from typing import Literal, TypeAlias
 
-NumberType: TypeAlias = Decimal | int | float
-OperatorType: TypeAlias = Literal[
+Number: TypeAlias = Decimal | int | float
+Operator: TypeAlias = Literal[
     "add",
     "subtract",
     "multiply",

@@ -2,7 +2,7 @@ from collections.abc import Callable
 from decimal import Decimal
 from typing import Any, Protocol, TypeAlias
 
-from .models import OperatorType
+from .models import Operator
 
 
 class SupportsMathOperator(Protocol):
@@ -41,7 +41,7 @@ def _safe_operate(fn: OperatorFn) -> OperatorFn:
     return inner
 
 
-OPERATORS: dict[OperatorType, tuple[OperatorFn, str]] = {
+OPERATORS: dict[Operator, tuple[OperatorFn, str]] = {
     "add": (_safe_operate(lambda a, b: a + b), "+"),
     "subtract": (_safe_operate(lambda a, b: a - b), "-"),
     "multiply": (_safe_operate(lambda a, b: a * b), "*"),
