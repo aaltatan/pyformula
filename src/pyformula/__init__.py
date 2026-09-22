@@ -1,5 +1,5 @@
 from .compiler.compiler import FormulaCompiler
-from .compiler.models import FormulaDict, is_formula_dict
+from .compiler.models import Expression
 from .exceptions import (
     FormulaAlreadyRegisteredError,
     FormulaNotFoundError,
@@ -12,16 +12,15 @@ from .registry import VariablesRegistry
 from .variable import variable
 
 __all__ = [
+    "Expression",
     "Formula",
     "FormulaAlreadyRegisteredError",
     "FormulaCompiler",
-    "FormulaDict",
     "FormulaNotFoundError",
     "FormulaNotRegisteredError",
     "Number",
     "Operator",
     "OperatorFn",
     "VariablesRegistry",
-    "is_formula_dict",
     "variable",
 ]

@@ -3,7 +3,8 @@ from decimal import Decimal
 from typing import Any
 
 import pytest
-from pyformula import Formula, FormulaCompiler, is_formula_dict
+from pyformula import Formula, FormulaCompiler
+from pyformula.compiler.models import is_formula_dict
 from pyformula.exceptions import FormulaNotFoundError
 
 

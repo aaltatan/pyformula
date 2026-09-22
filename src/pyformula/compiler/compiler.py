@@ -1,4 +1,3 @@
-# ruff: noqa: PLR0911, C901
 from collections.abc import Callable
 from decimal import Decimal
 from typing import Any, cast
@@ -8,17 +7,12 @@ from pyformula.exceptions import FormulaNotFoundError
 from pyformula.formula import Formula
 from pyformula.operator import OPERATORS
 
-from .models import (
-    ExpressionType,
-    FormulaDict,
-    is_absolute_wrapper_dict,
-    is_formula_dict,
-    is_negative_wrapper_dict,
-    is_positive_wrapper_dict,
-    is_round_wrapper_dict,
-)
+from .models import Expression, FormulaDict, is_formula_dict, is_round_wrapper_dict
 
-MATHS_FNS: dict[str, Callable[[Formula[Any]], Formula[Any]]] = {
+WRAPPER_FNS: dict[str, Callable[[Formula[Any]], Formula[Any]]] = {
+    "positive": lambda fm: +fm,
+    "negative": lambda fm: -fm,
+    "absolute": abs,
     "ceil": math.ceil,
     "floor": math.floor,
     "trunc": math.trunc,
@@ -57,34 +51,9 @@ class FormulaCompiler[T]:
     def __init__(self, fns: dict[str, Formula[T]], /) -> None:
         self._fns = fns
 
-    def compile(self, formula: FormulaDict) -> Formula[T]:
-        first_expression = next(iter(formula["expressions"]))
-        result = self._compile_expression(first_expression)
-
-        for expression in formula["expressions"][1:]:
-            applier, _ = OPERATORS[formula["operator"]]
-            result = applier(result, self._compile_expression(expression))
-
-        return cast("Formula[T]", result)
-
-    def _compile_expression(self, expression: ExpressionType) -> Formula[T]:
-        # -----------------------
-        # formula case
-        # -----------------------
-
-        if is_formula_dict(expression):
-            return self.compile(expression)
-
-        # -----------------------
-        # number case
-        # -----------------------
-
+    def compile(self, expression: Expression) -> Formula[T]:
         if isinstance(expression, (int, float, Decimal)):
             return Formula(lambda _: expression)
-
-        # -----------------------
-        # string case
-        # -----------------------
 
         if isinstance(expression, str) and expression not in self._fns:
             raise FormulaNotFoundError(expression)
@@ -92,32 +61,24 @@ class FormulaCompiler[T]:
         if isinstance(expression, str):
             return self._fns[expression]
 
-        # -----------------------
-        # basic operators
-        # -----------------------
-
-        if is_positive_wrapper_dict(expression):
-            return +self._compile_expression(expression["positive"])
-
-        if is_negative_wrapper_dict(expression):
-            return -self._compile_expression(expression["negative"])
-
-        if is_absolute_wrapper_dict(expression):
-            return abs(self._compile_expression(expression["absolute"]))
+        if is_formula_dict(expression):
+            return self._compile_formula(expression)
 
         if is_round_wrapper_dict(expression):
-            return round(
-                self._compile_expression(expression["round"]),
-                ndigits=expression["ndigits"],
-            )
+            return round(self.compile(expression["round"]), ndigits=expression["ndigits"])
 
-        # -----------------------
-        # math operators
-        # -----------------------
-
-        for fn_name, math_fn in MATHS_FNS.items():
-            if fn_name in expression:
-                return math_fn(self._compile_expression(expression[fn_name]))
+        for fn_name, wrap in WRAPPER_FNS.items():
+            if fn_name in expression and len(expression) == 1:
+                return wrap(self.compile(expression[fn_name]))
 
         msg = f"Invalid expression: {expression}"
         raise TypeError(msg)
+
+    def _compile_formula(self, fm_dict: FormulaDict) -> Formula[T]:
+        formula = self.compile(next(iter(fm_dict["expressions"])))
+
+        for expression in fm_dict["expressions"][1:]:
+            applier, _ = OPERATORS[fm_dict["operator"]]
+            formula = applier(formula, self.compile(expression))
+
+        return cast("Formula[T]", formula)

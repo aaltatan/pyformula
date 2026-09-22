@@ -1,6 +1,6 @@
 from typing import TypeAlias, TypedDict, TypeGuard
 
-from pyformula.models import NumberType, OperatorType
+from pyformula.models import Number, Operator
 
 # -----------------------
 # basic operators
@@ -8,31 +8,19 @@ from pyformula.models import NumberType, OperatorType
 
 
 class PositiveWrapperDict(TypedDict):
-    positive: "WrapperType"
-
-
-def is_positive_wrapper_dict(obj: object) -> TypeGuard[PositiveWrapperDict]:
-    return _is_typed_dict(obj, "positive")
+    positive: "Expression"
 
 
 class NegativeWrapperDict(TypedDict):
-    negative: "WrapperType"
-
-
-def is_negative_wrapper_dict(obj: object) -> TypeGuard[NegativeWrapperDict]:
-    return _is_typed_dict(obj, "negative")
+    negative: "Expression"
 
 
 class AbsoluteWrapperDict(TypedDict):
-    absolute: "WrapperType"
-
-
-def is_absolute_wrapper_dict(obj: object) -> TypeGuard[AbsoluteWrapperDict]:
-    return _is_typed_dict(obj, "absolute")
+    absolute: "Expression"
 
 
 class RoundWrapperDict(TypedDict):
-    round: "WrapperType"
+    round: "Expression"
     ndigits: int
 
 
@@ -46,15 +34,15 @@ def is_round_wrapper_dict(obj: object) -> TypeGuard[RoundWrapperDict]:
 
 
 class FloorWrapperDict(TypedDict):
-    floor: "WrapperType"
+    floor: "Expression"
 
 
 class CeilWrapperDict(TypedDict):
-    ceil: "WrapperType"
+    ceil: "Expression"
 
 
 class TruncWrapperDict(TypedDict):
-    trunc: "WrapperType"
+    trunc: "Expression"
 
 
 # -----------------------
@@ -63,11 +51,11 @@ class TruncWrapperDict(TypedDict):
 
 
 class SqrtWrapperDict(TypedDict):
-    sqrt: "WrapperType"
+    sqrt: "Expression"
 
 
 class CbrtWrapperDict(TypedDict):
-    cbrt: "WrapperType"
+    cbrt: "Expression"
 
 
 # ----------------------------------------------
@@ -76,27 +64,27 @@ class CbrtWrapperDict(TypedDict):
 
 
 class ExpWrapperDict(TypedDict):
-    exp: "WrapperType"
+    exp: "Expression"
 
 
 class Exp2WrapperDict(TypedDict):
-    exp2: "WrapperType"
+    exp2: "Expression"
 
 
 class Expm1WrapperDict(TypedDict):
-    expm1: "WrapperType"
+    expm1: "Expression"
 
 
 class Log10WrapperDict(TypedDict):
-    log10: "WrapperType"
+    log10: "Expression"
 
 
 class Log1pWrapperDict(TypedDict):
-    log1p: "WrapperType"
+    log1p: "Expression"
 
 
 class Log2WrapperDict(TypedDict):
-    log2: "WrapperType"
+    log2: "Expression"
 
 
 # ----------------------------------------------
@@ -105,51 +93,51 @@ class Log2WrapperDict(TypedDict):
 
 
 class SinWrapperDict(TypedDict):
-    sin: "WrapperType"
+    sin: "Expression"
 
 
 class SinhWrapperDict(TypedDict):
-    sinh: "WrapperType"
+    sinh: "Expression"
 
 
 class AsinWrapperDict(TypedDict):
-    asin: "WrapperType"
+    asin: "Expression"
 
 
 class AsinhWrapperDict(TypedDict):
-    asinh: "WrapperType"
+    asinh: "Expression"
 
 
 class CosWrapperDict(TypedDict):
-    cos: "WrapperType"
+    cos: "Expression"
 
 
 class CoshWrapperDict(TypedDict):
-    cosh: "WrapperType"
+    cosh: "Expression"
 
 
 class AcosWrapperDict(TypedDict):
-    acos: "WrapperType"
+    acos: "Expression"
 
 
 class AcoshWrapperDict(TypedDict):
-    acosh: "WrapperType"
+    acosh: "Expression"
 
 
 class TanWrapperDict(TypedDict):
-    tan: "WrapperType"
+    tan: "Expression"
 
 
 class TanhWrapperDict(TypedDict):
-    tanh: "WrapperType"
+    tanh: "Expression"
 
 
 class AtanWrapperDict(TypedDict):
-    atan: "WrapperType"
+    atan: "Expression"
 
 
 class AtanhWrapperDict(TypedDict):
-    atanh: "WrapperType"
+    atanh: "Expression"
 
 
 # ----------------------------------------------
@@ -158,11 +146,11 @@ class AtanhWrapperDict(TypedDict):
 
 
 class DegreesWrapperDict(TypedDict):
-    degrees: "WrapperType"
+    degrees: "Expression"
 
 
 class RadiansWrapperDict(TypedDict):
-    radians: "WrapperType"
+    radians: "Expression"
 
 
 # ----------------------------------------------
@@ -171,27 +159,27 @@ class RadiansWrapperDict(TypedDict):
 
 
 class ErfWrapperDict(TypedDict):
-    erf: "WrapperType"
+    erf: "Expression"
 
 
 class ErfcWrapperDict(TypedDict):
-    erfc: "WrapperType"
+    erfc: "Expression"
 
 
 class GammaWrapperDict(TypedDict):
-    gamma: "WrapperType"
+    gamma: "Expression"
 
 
 class LgammaWrapperDict(TypedDict):
-    lgamma: "WrapperType"
+    lgamma: "Expression"
 
 
 class FabsWrapperDict(TypedDict):
-    fabs: "WrapperType"
+    fabs: "Expression"
 
 
 class UlpWrapperDict(TypedDict):
-    ulp: "WrapperType"
+    ulp: "Expression"
 
 
 # -----------------------
@@ -199,18 +187,12 @@ class UlpWrapperDict(TypedDict):
 # -----------------------
 
 
-class FormulaDict(TypedDict):
-    operator: OperatorType
-    expressions: list["ExpressionType"]
+Expression: TypeAlias = "FormulaDict | WrapperDict | str | Number"
 
 
-ExpressionType: TypeAlias = "FormulaDict | WrapperType | NumberType"
-
-
-WrapperType: TypeAlias = (
-    str
+WrapperDict: TypeAlias = (
     # basic operators
-    | PositiveWrapperDict
+    PositiveWrapperDict
     | NegativeWrapperDict
     | AbsoluteWrapperDict
     | RoundWrapperDict
@@ -252,6 +234,11 @@ WrapperType: TypeAlias = (
     | FabsWrapperDict
     | UlpWrapperDict
 )
+
+
+class FormulaDict(TypedDict):
+    operator: Operator
+    expressions: list["Expression"]
 
 
 def is_formula_dict(obj: object) -> TypeGuard[FormulaDict]:
