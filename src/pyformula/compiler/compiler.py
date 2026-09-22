@@ -64,8 +64,16 @@ class FormulaCompiler[T]:
         if is_formula_dict(expression):
             return self._compile_formula(expression)
 
+        if is_round_wrapper_dict(expression) and not isinstance(expression["round"], dict):
+            msg = f"Invalid expression: {expression}"
+            raise TypeError(msg)
+
         if is_round_wrapper_dict(expression):
             return round(self.compile(expression["round"]), ndigits=expression["ndigits"])
+
+        if not isinstance(expression, dict):
+            msg = f"Invalid expression: {expression}"
+            raise TypeError(msg)
 
         for fn_name, wrap in WRAPPER_FNS.items():
             if fn_name in expression and len(expression) == 1:
@@ -75,10 +83,22 @@ class FormulaCompiler[T]:
         raise TypeError(msg)
 
     def _compile_formula(self, fm_dict: FormulaDict) -> Formula[T]:
-        formula = self.compile(next(iter(fm_dict["expressions"])))
+        expressions = fm_dict["expressions"]
+        operator = fm_dict["operator"]
 
-        for expression in fm_dict["expressions"][1:]:
-            applier, _ = OPERATORS[fm_dict["operator"]]
+        if (
+            not isinstance(expressions, list)
+            or not expressions
+            or not isinstance(operator, str)
+            or operator not in OPERATORS
+        ):
+            msg = f"Invalid expression: {fm_dict}"
+            raise TypeError(msg)
+
+        formula = self.compile(expressions[0])
+        applier, _ = OPERATORS[operator]
+
+        for expression in expressions[1:]:
             formula = applier(formula, self.compile(expression))
 
         return cast("Formula[T]", formula)
