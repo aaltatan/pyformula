@@ -1,16 +1,24 @@
 [project]
 name = "pyformula"
 version = "0.1.0"
-description = "Add your description here"
+description = "A lightweight, typed Python library for composing business rules as reusable, executable numeric formulas."
 readme = "README.md"
-authors = [
-    { name = "aaltatan", email = "a.altatan@gmail.com" }
-]
+authors = [{ name = "aaltatan", email = "a.altatan@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = []
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
 
 [project.scripts]
 pyformula = "pyformula:main"
+
+[project.urls]
+"Homepage" = "https://github.com/aaltatan/pyformula"
+"Issues" = "https://github.com/aaltatan/pyformula/issues"
+
 
 [build-system]
 requires = ["uv_build>=0.12.6,<0.13.0"]
