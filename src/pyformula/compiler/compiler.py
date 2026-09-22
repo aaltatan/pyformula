@@ -64,7 +64,7 @@ class FormulaCompiler[T]:
         if is_formula_dict(expression):
             return self._compile_formula(expression)
 
-        if is_round_wrapper_dict(expression) and not isinstance(expression["round"], dict):
+        if is_round_wrapper_dict(expression) and not isinstance(expression["ndigits"], int):
             msg = f"Invalid expression: {expression}"
             raise TypeError(msg)
 
