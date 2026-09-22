@@ -181,12 +181,12 @@ def test_formula_dict_guard_accepts_the_compiler_shape() -> None:
 def test_empty_expressions_raise() -> None:
     compiler = FormulaCompiler[Any]({})
 
-    with pytest.raises(StopIteration):
+    with pytest.raises(TypeError, match="Invalid expression"):
         compiler.compile({"operator": "add", "expressions": []})
 
 
 def test_unknown_operator_raises_when_multiple_expressions_are_present() -> None:
-    with pytest.raises(KeyError):
+    with pytest.raises(TypeError, match="Invalid expression"):
         compile_formula([1, 2], "unknown")(None)
 
 
