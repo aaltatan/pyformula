@@ -3,6 +3,7 @@ from typing import Any
 
 import pytest
 from pyformula import Formula, FormulaCompiler
+from pyformula.compiler.compiler import InvalidExpressionError
 from pyformula.exceptions import FormulaNotFoundError
 
 
@@ -93,8 +94,10 @@ def test_round_wrapper_cases(value: float, ndigits: int) -> None:
         {"sqrt": {"operator": "add", "expressions": [1, 2]}, "extra": 0},
     ),
 )
-def test_invalid_expression_shapes_raise_type_error(expression: dict[str, Any]) -> None:
-    with pytest.raises(TypeError, match="Invalid expression"):
+def test_invalid_expression_shapes_raise_invalid_expression_error(
+    expression: dict[str, Any],
+) -> None:
+    with pytest.raises(InvalidExpressionError, match="Invalid expression"):
         compile_expression(expression)
 
 
@@ -109,19 +112,19 @@ def test_invalid_expression_shapes_raise_type_error(expression: dict[str, Any]) 
         {"round": 1, "ndigits": "2"},
     ),
 )
-def test_malformed_formula_inputs_raise_invalid_expression_type_error(expression: Any) -> None:
-    with pytest.raises(TypeError, match="Invalid expression"):
+def test_malformed_formula_inputs_raise_invalid_expression_error(expression: Any) -> None:
+    with pytest.raises(InvalidExpressionError, match="Invalid expression"):
         compile_expression(expression)
 
 
 @pytest.mark.parametrize("expressions", [1, None])
-def test_non_iterable_expression_lists_raise_type_error(expressions: Any) -> None:
-    with pytest.raises(TypeError):
+def test_non_iterable_expression_lists_raise_invalid_expression_error(expressions: Any) -> None:
+    with pytest.raises(InvalidExpressionError):
         compile_expression({"operator": "add", "expressions": expressions})
 
 
 def test_string_expression_list_items_are_resolved_as_names() -> None:
-    with pytest.raises(TypeError, match="Invalid expression"):
+    with pytest.raises(InvalidExpressionError, match="Invalid expression"):
         compile_expression({"operator": "add", "expressions": "12"})
 
 

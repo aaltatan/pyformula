@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Any, cast
 
 from pyformula import math
-from pyformula.exceptions import FormulaNotFoundError
+from pyformula.exceptions import FormulaNotFoundError, InvalidExpressionError
 from pyformula.formula import Formula
 from pyformula.operator import OPERATORS
 
@@ -65,22 +65,19 @@ class FormulaCompiler[T]:
             return self._compile_formula(expression)
 
         if is_round_wrapper_dict(expression) and not isinstance(expression["ndigits"], int):
-            msg = f"Invalid expression: {expression}"
-            raise TypeError(msg)
+            raise InvalidExpressionError(expression)
 
         if is_round_wrapper_dict(expression):
             return round(self.compile(expression["round"]), ndigits=expression["ndigits"])
 
         if not isinstance(expression, dict):
-            msg = f"Invalid expression: {expression}"
-            raise TypeError(msg)
+            raise InvalidExpressionError(expression)
 
         for fn_name, wrap in WRAPPER_FNS.items():
             if fn_name in expression and len(expression) == 1:
                 return wrap(self.compile(expression[fn_name]))
 
-        msg = f"Invalid expression: {expression}"
-        raise TypeError(msg)
+        raise InvalidExpressionError(expression)
 
     def _compile_formula(self, fm_dict: FormulaDict) -> Formula[T]:
         expressions = fm_dict["expressions"]
@@ -92,8 +89,7 @@ class FormulaCompiler[T]:
             or not isinstance(operator, str)
             or operator not in OPERATORS
         ):
-            msg = f"Invalid expression: {fm_dict}"
-            raise TypeError(msg)
+            raise InvalidExpressionError(fm_dict)
 
         formula = self.compile(expressions[0])
         applier, _ = OPERATORS[operator]

@@ -4,6 +4,7 @@ from typing import Any
 
 import pytest
 from pyformula import Formula, FormulaCompiler
+from pyformula.compiler.compiler import InvalidExpressionError
 from pyformula.compiler.models import is_formula_dict
 from pyformula.exceptions import FormulaNotFoundError
 
@@ -168,8 +169,10 @@ def test_missing_formula_name_raises() -> None:
         {"operator": "add", "expression": [1, 2]},
     ),
 )
-def test_invalid_expression_shape_raises_type_error(expression: dict[str, Any]) -> None:
-    with pytest.raises(TypeError, match="Invalid expression"):
+def test_invalid_expression_shape_raises_invalid_expression_error(
+    expression: dict[str, Any],
+) -> None:
+    with pytest.raises(InvalidExpressionError, match="Invalid expression"):
         compile_formula([expression])
 
 
@@ -181,12 +184,12 @@ def test_formula_dict_guard_accepts_the_compiler_shape() -> None:
 def test_empty_expressions_raise() -> None:
     compiler = FormulaCompiler[Any]({})
 
-    with pytest.raises(TypeError, match="Invalid expression"):
+    with pytest.raises(InvalidExpressionError, match="Invalid expression"):
         compiler.compile({"operator": "add", "expressions": []})
 
 
 def test_unknown_operator_raises_when_multiple_expressions_are_present() -> None:
-    with pytest.raises(TypeError, match="Invalid expression"):
+    with pytest.raises(InvalidExpressionError, match="Invalid expression"):
         compile_formula([1, 2], "unknown")(None)
 
 
