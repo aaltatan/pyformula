@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Any, Literal
 
 import pytest
-from pyformula import Formula, NumberType, OperatorFn
+from pyformula import Formula, Number, OperatorFn
 
 
 @dataclass(kw_only=True)
@@ -348,8 +348,8 @@ def test_rounding_formula(
     ),
 )
 def test_formula_basic_methods(
-    n1: NumberType,
-    n2: NumberType,
+    n1: Number,
+    n2: Number,
     expected_result: Any,
     expected_result_type: type[Any],
     operator_fn: OperatorFn,
