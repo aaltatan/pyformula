@@ -48,10 +48,70 @@ WRAPPER_FNS: dict[str, Callable[[Formula[Any]], Formula[Any]]] = {
 
 
 class FormulaCompiler[T]:
+    """Compile a structured expression tree into a runtime formula.
+
+    Examples:
+    ```python
+    from dataclasses import dataclass
+    from pyformula import Formula
+
+
+    @dataclass
+    class Rectangular:
+        width: float
+        height: float
+
+
+    def main() -> None:
+        fms: dict[str, Formula[Rectangular]] = {
+            "width": Formula[Rectangular](lambda rectangle: rectangle.width),
+            "height": Formula[Rectangular](lambda rectangle: rectangle.height),
+        }
+
+        compiler = FormulaCompiler[Rectangular](fms)
+
+        perimeter = compiler.compile(
+            {
+                "operator": "multiply",
+                "expressions":[
+                    "operator": "add",
+                    "expressions": [
+                        "width",
+                        "height",
+                    ], 2,
+                ]
+            }
+        )
+
+        area = compiler.compile(
+            {
+                "operator": "multiply",
+                "expressions": [
+                    "width",
+                    "height",
+                ],
+            }
+        )
+
+        print(perimeter(Rectangular(width=10, height=20)))  # 60.0
+        print(area(Rectangular(width=10, height=20)))  # 200.0
+
+        print(perimeter(Rectangular(width=5, height=10)))  # 30.0
+        print(area(Rectangular(width=5, height=10)))  # 50.0
+
+
+    if __name__ == "__main__":
+        main()
+    ```
+
+
+    """
+
     def __init__(self, fns: dict[str, Formula[T]], /) -> None:
         self._fns = fns
 
     def compile(self, expression: Expression) -> Formula[T]:
+        """Compile an expression object into a formula callable for a given model type."""
         if isinstance(expression, (int, float, Decimal)):
             return Formula(lambda _: expression)
 
