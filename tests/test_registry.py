@@ -1,5 +1,6 @@
 import pytest
 from pyformula.exceptions import FormulaAlreadyRegisteredError, FormulaNotRegisteredError
+from pyformula.formula import Formula
 from pyformula.registry import VariablesRegistry
 
 
@@ -121,6 +122,36 @@ def test_registry_rejects_duplicate_registration() -> None:
 
         @registry.variable(name="salary")
         def another_salary(_: object) -> float: ...
+
+
+def test_registry_variables_is_a_read_only_view() -> None:
+    registry = VariablesRegistry()
+
+    def salary(_: object) -> float:
+        return 1000.0
+
+    registry.register_variable(salary)
+
+    with pytest.raises(TypeError):
+        registry.variables["salary"] = Formula(lambda _: 0.0)  # type: ignore[index]
+
+    with pytest.raises(TypeError):
+        del registry.variables["salary"]  # type: ignore[attr-defined]
+
+
+def test_registry_variables_view_reflects_later_registrations() -> None:
+    registry = VariablesRegistry()
+    view = registry.variables
+
+    assert "salary" not in view
+
+    def salary(_: object) -> float:
+        return 1000.0
+
+    registry.register_variable(salary)
+
+    assert "salary" in view
+    assert view["salary"](None) == 1000.0
 
 
 def test_registry_allows_same_function_with_different_name() -> None:

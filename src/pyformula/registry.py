@@ -1,4 +1,5 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
+from types import MappingProxyType
 
 from .exceptions import FormulaAlreadyRegisteredError, FormulaNotRegisteredError
 from .formula import Formula
@@ -59,9 +60,9 @@ class VariablesRegistry[T]:
         self._hidden: set[str] = set()
 
     @property
-    def variables(self) -> dict[str, Formula[T]]:
-        """Return the mapping of registered variable names to formula instances."""
-        return self._variables
+    def variables(self) -> Mapping[str, Formula[T]]:
+        """Return a read-only view of registered variable names to formula instances."""
+        return MappingProxyType(self._variables)
 
     def __getitem__(self, name: str) -> Formula[T]:
         """Return a registered variable by name, raising if it is hidden or missing."""

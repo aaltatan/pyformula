@@ -139,7 +139,7 @@ class Formula[T]:
                 if isinstance(rounded, decimal.Decimal):
                     return rounded
 
-                return decimal.Decimal.from_float(rounded)
+                return decimal.Decimal(rounded)
 
             if isinstance(value, float):
                 return float(round(value, ndigits))

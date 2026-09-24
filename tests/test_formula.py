@@ -1,6 +1,6 @@
 import operator
 from dataclasses import dataclass, field
-from decimal import Decimal
+from decimal import Decimal, DivisionByZero, InvalidOperation
 from typing import Any, Literal
 
 import pytest
@@ -365,3 +365,57 @@ def test_formula_basic_methods(
     assert isinstance(result_1, expected_result_type)
     assert isinstance(result_2, expected_result_type)
     assert isinstance(result_3, expected_result_type)
+
+
+@pytest.mark.parametrize(
+    "n1, n2, operator_fn, error_type",
+    (
+        (1, 0, operator.truediv, ZeroDivisionError),
+        (1.0, 0, operator.truediv, ZeroDivisionError),
+        (1.0, 0.0, operator.truediv, ZeroDivisionError),
+        (Decimal(1), Decimal(0), operator.truediv, DivisionByZero),
+        (Decimal(1), 0, operator.truediv, DivisionByZero),
+        (Decimal(0), Decimal(0), operator.truediv, InvalidOperation),
+        (1, 0, operator.mod, ZeroDivisionError),
+        (1.0, 0.0, operator.mod, ZeroDivisionError),
+        (Decimal(1), Decimal(0), operator.mod, InvalidOperation),
+        (1, 0, operator.floordiv, ZeroDivisionError),
+        (1.0, 0.0, operator.floordiv, ZeroDivisionError),
+        (Decimal(1), Decimal(0), operator.floordiv, DivisionByZero),
+    ),
+)
+def test_formula_zero_division_propagates_expected_error(
+    n1: Number,
+    n2: Number,
+    operator_fn: OperatorFn,
+    error_type: type[Exception],
+) -> None:
+    formula_1 = Formula(lambda _: n1)
+    formula_2 = Formula(lambda _: n2)
+
+    with pytest.raises(error_type):
+        (operator_fn(formula_1, formula_2))(None)  # type: ignore  # noqa: PGH003
+
+
+def test_formula_power_with_negative_base_and_fractional_exponent_raises() -> None:
+    base = Formula[Any](lambda _: -8.0)
+    exponent = Formula[Any](lambda _: 0.5)
+
+    with pytest.raises(TypeError, match="complex"):
+        (base**exponent)(None)
+
+
+def test_formula_power_with_negative_int_base_and_fractional_exponent_raises() -> None:
+    base = Formula[Any](lambda _: -8)
+    exponent = Formula[Any](lambda _: 0.5)
+
+    with pytest.raises(TypeError, match="complex"):
+        (base**exponent)(None)
+
+
+def test_formula_power_with_negative_decimal_base_and_fractional_exponent_raises() -> None:
+    base = Formula[Any](lambda _: Decimal(-8))
+    exponent = Formula[Any](lambda _: Decimal("0.5"))
+
+    with pytest.raises(InvalidOperation):
+        (base**exponent)(None)

@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from decimal import Decimal
 from typing import Any, cast
 
@@ -7,7 +7,13 @@ from pyformula.exceptions import FormulaNotFoundError, InvalidExpressionError
 from pyformula.formula import Formula
 from pyformula.operator import OPERATORS
 
-from .models import Expression, FormulaDict, is_formula_dict, is_round_wrapper_dict
+from .models import (
+    Expression,
+    FormulaDict,
+    RoundWrapperDict,
+    is_formula_dict,
+    is_round_wrapper_dict,
+)
 
 WRAPPER_FNS: dict[str, Callable[[Formula[Any]], Formula[Any]]] = {
     "positive": lambda fm: +fm,
@@ -107,37 +113,56 @@ class FormulaCompiler[T]:
 
     """
 
-    def __init__(self, fns: dict[str, Formula[T]], /) -> None:
+    def __init__(self, fns: Mapping[str, Formula[T]], /) -> None:
         self._fns = fns
 
     def compile(self, expression: Expression) -> Formula[T]:
         """Compile an expression object into a formula callable for a given model type."""
+        if isinstance(expression, bool):
+            raise InvalidExpressionError(expression)
+
         if isinstance(expression, (int, float, Decimal)):
             return Formula(lambda _: expression)
 
-        if isinstance(expression, str) and expression not in self._fns:
-            raise FormulaNotFoundError(expression)
-
         if isinstance(expression, str):
-            return self._fns[expression]
+            return self._compile_name(expression)
 
         if is_formula_dict(expression):
             return self._compile_formula(expression)
 
-        if is_round_wrapper_dict(expression) and not isinstance(expression["ndigits"], int):
-            raise InvalidExpressionError(expression)
-
         if is_round_wrapper_dict(expression):
-            return round(self.compile(expression["round"]), ndigits=expression["ndigits"])
+            return self._compile_round(expression)
 
-        if not isinstance(expression, dict):
-            raise InvalidExpressionError(expression)
-
-        for fn_name, wrap in WRAPPER_FNS.items():
-            if fn_name in expression and len(expression) == 1:
-                return wrap(self.compile(expression[fn_name]))
+        if isinstance(expression, dict):
+            wrapped = self._compile_wrapper(expression)
+            if wrapped is not None:
+                return wrapped
 
         raise InvalidExpressionError(expression)
+
+    def _compile_name(self, name: str) -> Formula[T]:
+        if name not in self._fns:
+            raise FormulaNotFoundError(name)
+
+        return self._fns[name]
+
+    def _compile_round(self, expression: RoundWrapperDict) -> Formula[T]:
+        ndigits = expression["ndigits"]
+
+        if not isinstance(ndigits, int) or isinstance(ndigits, bool):
+            raise InvalidExpressionError(expression)
+
+        return round(self.compile(expression["round"]), ndigits=ndigits)
+
+    def _compile_wrapper(self, expression: Mapping[str, object]) -> Formula[T] | None:
+        if len(expression) != 1:
+            return None
+
+        for fn_name, wrap in WRAPPER_FNS.items():
+            if fn_name in expression:
+                return wrap(self.compile(cast("Expression", expression[fn_name])))
+
+        return None
 
     def _compile_formula(self, fm_dict: FormulaDict) -> Formula[T]:
         expressions = fm_dict["expressions"]

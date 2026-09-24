@@ -1,5 +1,7 @@
+# ruff: noqa: FBT001
+
 import math
-from decimal import Decimal
+from decimal import Decimal, DivisionByZero, InvalidOperation
 from typing import Any
 
 import pytest
@@ -209,3 +211,40 @@ def test_compiler_handles_decimal_float_operator_pairs(
     left: Any, right: Any, operator: str, expected: Decimal
 ) -> None:
     assert compile_formula([left, right], operator)(None) == expected
+
+
+@pytest.mark.parametrize("value", (True, False))
+def test_compiler_rejects_bool_literals(value: bool) -> None:
+    with pytest.raises(InvalidExpressionError, match="Invalid expression"):
+        compile_formula([value])
+
+
+@pytest.mark.parametrize("ndigits", (True, False))
+def test_compiler_rejects_bool_ndigits(ndigits: bool) -> None:
+    compiler = FormulaCompiler[Any]({})
+
+    with pytest.raises(InvalidExpressionError, match="Invalid expression"):
+        compiler.compile({"round": 1.5, "ndigits": ndigits})
+
+
+@pytest.mark.parametrize(
+    ("operator", "expressions", "error_type"),
+    (
+        ("divide", [1, 0], ZeroDivisionError),
+        ("modulo", [1, 0], ZeroDivisionError),
+        ("floor_divide", [1, 0], ZeroDivisionError),
+        ("divide", [Decimal(1), Decimal(0)], DivisionByZero),
+        ("modulo", [Decimal(1), Decimal(0)], InvalidOperation),
+        ("floor_divide", [Decimal(1), Decimal(0)], DivisionByZero),
+    ),
+)
+def test_compiled_formula_propagates_zero_division_errors(
+    operator: str, expressions: list[Any], error_type: type[Exception]
+) -> None:
+    with pytest.raises(error_type):
+        compile_formula(expressions, operator)(None)
+
+
+def test_compiled_power_with_negative_base_and_fractional_exponent_raises() -> None:
+    with pytest.raises(TypeError, match="complex"):
+        compile_formula([-8.0, 0.5], "power")(None)

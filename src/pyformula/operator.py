@@ -36,7 +36,13 @@ def _safe_operate(fn: OperatorFn) -> OperatorFn:
         if isinstance(b, Decimal) and isinstance(a, float):
             a = Decimal.from_float(a)
 
-        return fn(a, b)
+        result = fn(a, b)
+
+        if isinstance(result, complex):
+            msg = f"operation on {a!r} and {b!r} produced an unsupported complex result"
+            raise TypeError(msg)
+
+        return result
 
     return inner
 

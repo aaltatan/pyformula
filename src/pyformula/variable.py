@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from functools import wraps
+from functools import update_wrapper
 
 from .formula import Formula
 from .models import Number
@@ -51,10 +51,8 @@ def variable[T](*, name: str | None = None) -> Callable[[Callable[[T], Number]],
     """
 
     def decorator(fn: Callable[[T], Number]) -> Formula[T]:
-        @wraps(fn)
-        def wrapper(fn: Callable[[T], Number]) -> Callable[[T], Number]:
-            return fn
-
-        return Formula(wrapper(fn), name=name or fn.__name__)
+        formula = Formula(fn, name=name or fn.__name__)
+        update_wrapper(formula, fn)
+        return formula
 
     return decorator
