@@ -1,7 +1,12 @@
 from collections.abc import Callable, Mapping
-from types import MappingProxyType
 
-from .exceptions import FormulaAlreadyRegisteredError, FormulaNotRegisteredError
+from pyvocabulary import Vocabulary
+
+from .exceptions import (
+    FormulaAlreadyRegisteredError,
+    FormulaNotRegisteredError,
+    InvalidFormulaNameError,
+)
 from .formula import Formula
 from .models import Number
 from .variable import variable
@@ -56,19 +61,20 @@ class VariablesRegistry[T]:
 
     def __init__(self) -> None:
         """Initialize an empty registry with no visible or hidden variables."""
-        self._variables: dict[str, Formula[T]] = {}
-        self._hidden: set[str] = set()
+        self._variables: Vocabulary[Formula[T]] = Vocabulary(
+            "formula",
+            does_not_exist=lambda name, _: FormulaNotRegisteredError(name),
+            already_registered=FormulaAlreadyRegisteredError,
+            invalid_name=InvalidFormulaNameError,
+        )
 
     @property
     def variables(self) -> Mapping[str, Formula[T]]:
-        """Return a read-only view of registered variable names to formula instances."""
-        return MappingProxyType(self._variables)
+        """Return a read-only view of the visible variables, the ones a compiler may use."""
+        return self._variables
 
     def __getitem__(self, name: str) -> Formula[T]:
         """Return a registered variable by name, raising if it is hidden or missing."""
-        if name in self._hidden or name not in self._variables:
-            raise FormulaNotRegisteredError(name)
-
         return self._variables[name]
 
     def variable(
@@ -107,18 +113,9 @@ class VariablesRegistry[T]:
         hidden: bool,
     ) -> Formula[T]:
         reg_name = name or fn.__name__
-
-        if reg_name in self._variables:
-            raise FormulaAlreadyRegisteredError(reg_name)
-
-        if hidden:
-            self._hidden.add(reg_name)
-
         var = variable(name=reg_name)(fn)
 
         if description or fn.__doc__:
             var.__doc__ = description or fn.__doc__
 
-        self._variables[reg_name] = var
-
-        return var
+        return self._variables.add(reg_name, var, hidden=hidden)

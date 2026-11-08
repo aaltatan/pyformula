@@ -5,6 +5,7 @@ from .exceptions import (
     FormulaNotFoundError,
     FormulaNotRegisteredError,
     InvalidExpressionError,
+    InvalidFormulaNameError,
     PyformulaError,
 )
 from .formula import Formula
@@ -21,6 +22,7 @@ __all__ = [
     "FormulaNotFoundError",
     "FormulaNotRegisteredError",
     "InvalidExpressionError",
+    "InvalidFormulaNameError",
     "LiteralFn",
     "Number",
     "Operator",

@@ -47,6 +47,20 @@ class FormulaNotFoundError(PyformulaError):
         super().__init__(msg)
 
 
+class InvalidFormulaNameError(PyformulaError, ValueError):
+    """Raised when a formula name is not an ASCII Python identifier.
+
+    Names end up in JSON expressions, so `net-salary` or a trailing newline is rejected.
+    """
+
+    def __init__(self, name: object, /) -> None:
+        super().__init__(
+            f"Invalid formula name: {name!r}, "
+            "name must start with a letter or underscore "
+            "and can only contain letters, numbers and underscores"
+        )
+
+
 class InvalidExpressionError(PyformulaError):
     """Raised when an expression structure does not match the compiler schema."""
 
