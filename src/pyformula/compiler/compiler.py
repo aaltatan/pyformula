@@ -2,8 +2,10 @@ from collections.abc import Callable, Mapping
 from decimal import Decimal
 from typing import Any, cast
 
+from pyvocabulary import index_path, key_path, located
+
 from pyformula import math
-from pyformula.exceptions import FormulaNotFoundError, InvalidExpressionError
+from pyformula.exceptions import FormulaNotFoundError, InvalidExpressionError, PyformulaError
 from pyformula.formula import Formula
 from pyformula.models import Number
 from pyformula.operator import OPERATORS
@@ -191,7 +193,7 @@ class FormulaCompiler[T]:
         if not isinstance(ndigits, int) or isinstance(ndigits, bool):
             raise InvalidExpressionError(expression)
 
-        return round(self.compile(expression["round"]), ndigits=ndigits)
+        return round(self._compile_at(expression["round"], "$.round"), ndigits=ndigits)
 
     def _compile_wrapper(self, expression: Mapping[str, object]) -> Formula[T] | None:
         if len(expression) != 1:
@@ -199,7 +201,8 @@ class FormulaCompiler[T]:
 
         for fn_name, wrap in WRAPPER_FNS.items():
             if fn_name in expression:
-                return wrap(self.compile(cast("Expression", expression[fn_name])))
+                operand = cast("Expression", expression[fn_name])
+                return wrap(self._compile_at(operand, key_path("$", fn_name)))
 
         return None
 
@@ -215,13 +218,20 @@ class FormulaCompiler[T]:
         ):
             raise InvalidExpressionError(fm_dict)
 
-        formula = self.compile(expressions[0])
+        formula = self._compile_at(expressions[0], "$.expressions[0]")
         applier, _ = OPERATORS[operator]
 
-        for expression in expressions[1:]:
-            formula = applier(formula, self.compile(expression))
+        for index, expression in enumerate(expressions[1:], start=1):
+            operand = self._compile_at(expression, index_path("$.expressions", index))
+            formula = applier(formula, operand)
 
         return cast("Formula[T]", formula)
+
+    def _compile_at(self, expression: Expression, path: str) -> Formula[T]:
+        # Each level notes its path relative to `$`; `located` prefixes the outer
+        # levels, so the error ends up with the absolute path.
+        with located(path, PyformulaError):
+            return self.compile(expression)
 
 
 def decimal_literal(number: Number, /) -> Decimal:

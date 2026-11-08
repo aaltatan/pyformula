@@ -858,6 +858,15 @@ Hidden variables (`hidden=True`) are left out of `registry.variables`, so a
 `FormulaCompiler(registry.variables)` cannot reach them; the decorated function
 still works from Python.
 
+Compiler errors inside a nested expression carry a note with the JSON path of the
+part that failed, while their type and message stay the same:
+
+```python
+compiler.compile({"operator": "add", "expressions": ["price", {"sqrt": "taxx"}]})
+# FormulaNotFoundError: Formula not found: taxx. Available formulas: price
+# at $.expressions[1].sqrt
+```
+
 Examples:
 
 ```python
