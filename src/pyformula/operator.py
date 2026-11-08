@@ -31,10 +31,10 @@ OperatorFn: TypeAlias = Callable[[SupportsMathOperator, SupportsMathOperator], S
 def _safe_operate(fn: OperatorFn) -> OperatorFn:
     def inner(a: SupportsMathOperator, b: SupportsMathOperator) -> SupportsMathOperator:
         if isinstance(a, Decimal) and isinstance(b, float):
-            b = Decimal.from_float(b)
+            b = Decimal(b)
 
         if isinstance(b, Decimal) and isinstance(a, float):
-            a = Decimal.from_float(a)
+            a = Decimal(a)
 
         result = fn(a, b)
 

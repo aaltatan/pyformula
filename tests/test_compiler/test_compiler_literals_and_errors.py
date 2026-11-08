@@ -3,7 +3,6 @@ from decimal import Decimal
 from typing import Any
 
 import pytest
-
 from pyformula import (
     Formula,
     FormulaAlreadyRegisteredError,
@@ -11,6 +10,7 @@ from pyformula import (
     FormulaNotFoundError,
     FormulaNotRegisteredError,
     InvalidExpressionError,
+    Number,
     PyformulaError,
     decimal_literal,
 )
@@ -29,14 +29,12 @@ class TestBaseError:
             InvalidExpressionError("x"),
         ],
     )
-    def test_every_error_is_a_pyformula_error(self, error):
+    def test_every_error_is_a_pyformula_error(self, error: Exception) -> None:
         assert isinstance(error, PyformulaError)
 
     def test_compiler_errors_can_be_caught_together(self):
         with pytest.raises(PyformulaError):
-            FormulaCompiler({"price": price}).compile(
-                {"operator": "nope", "expressions": [1]}
-            )
+            FormulaCompiler({"price": price}).compile({"operator": "nope", "expressions": [1]})
 
 
 class TestFormulaNotFound:
@@ -50,9 +48,7 @@ class TestFormulaNotFound:
             compiler.compile("pricee")
 
     def test_message_for_an_empty_compiler(self):
-        with pytest.raises(
-            FormulaNotFoundError, match=r"Available formulas: \(none\)$"
-        ):
+        with pytest.raises(FormulaNotFoundError, match=r"Available formulas: \(none\)$"):
             FormulaCompiler[Any]({}).compile("price")
 
     def test_message_without_available_names_is_unchanged(self):
@@ -122,9 +118,7 @@ class TestLiteralHook:
 
     def test_hook_does_not_touch_ndigits(self):
         calls: list[Any] = []
-        compiler = FormulaCompiler(
-            {"price": price}, literal=lambda n: calls.append(n) or n
-        )
+        compiler = FormulaCompiler({"price": price}, literal=lambda n: calls.append(n) or n)
         compiler.compile({"round": "price", "ndigits": 2})
         assert calls == []
 
@@ -143,6 +137,6 @@ class TestDecimalLiteral:
             (1e-7, Decimal("1E-7")),
         ],
     )
-    def test_converts_through_str(self, number, expected):
+    def test_converts_through_str(self, number: Number, expected: Decimal) -> None:
         assert decimal_literal(number) == expected
         assert str(decimal_literal(number)) == str(expected)

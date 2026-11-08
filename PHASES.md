@@ -10,5 +10,5 @@
 ## Next
 - [x] Adopt pyvocabulary (branch `refactor/pyvocabulary`, on top of `fix/errors-and-literals`, 1046 tests). Hidden variables leave `registry.variables`; names must be identifiers; 0.2.0
 - [x] JSON-path notes on compiler errors via `pyvocabulary.located` (`at $.expressions[1].sqrt`)
-- [ ] Clean up the 4 pre-existing `mypy --strict` findings in `compiler.py` and `registry.py`
-- [ ] Clean up the 20 pre-existing ruff findings
+- [x] Clean up the 4 pre-existing `mypy --strict` findings (`compiler.py`, `formula.py`)
+- [x] Clean up the pre-existing ruff findings (7 left with the current ruff); `src` and `tests` are formatted

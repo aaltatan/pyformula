@@ -92,7 +92,7 @@ def test_lambda_formula_repr(lambda_formulas: dict[str, Formula[Employee]]) -> N
         (Employee(name="Jane", salary=4_500, hourly_rate=300), 300, 2_250, 150, 75, 150),
     ],
 )
-def test_formulas(  # noqa: PLR0913
+def test_formulas(  # noqa: PLR0913, PLR0917  pytest passes fixtures and params positionally
     normal_formulas: dict[str, Formula[Employee]],
     lambda_formulas: dict[str, Formula[Employee]],
     user: Employee,

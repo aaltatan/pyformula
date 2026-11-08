@@ -126,7 +126,8 @@ class Formula[T]:
 
     def __abs__(self) -> "Formula[T]":
         """Return a formula that computes the absolute value of this formula."""
-        return Formula(lambda obj: abs(self(obj)), name=f"|{self}|")
+        # abs() over the `Number` union infers `object` in mypy
+        return Formula(lambda obj: cast("Number", abs(self(obj))), name=f"|{self}|")
 
     def __round__(self, ndigits: int | None = None) -> "Formula[T]":
         """Return a formula that rounds the current result to the given precision."""

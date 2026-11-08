@@ -223,9 +223,9 @@ class FormulaCompiler[T]:
 
         for index, expression in enumerate(expressions[1:], start=1):
             operand = self._compile_at(expression, index_path("$.expressions", index))
-            formula = applier(formula, operand)
+            formula = cast("Formula[T]", applier(formula, operand))
 
-        return cast("Formula[T]", formula)
+        return formula
 
     def _compile_at(self, expression: Expression, path: str) -> Formula[T]:
         # Each level notes its path relative to `$`; `located` prefixes the outer
