@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 
 [[package]]
@@ -194,9 +194,21 @@ wheels = [
 ]
 
 [[package]]
+name = "pyargprocessors"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ee/17/e82666cb38cc538cde2ee4b60cb0203bc03bd3d6be9042d91004d68be12c/pyargprocessors-0.2.0.tar.gz", hash = "sha256:5e0cf46fec261f2774c6163bef526f2bc45a57e4b21dc75f9aab7664adcb7b4b", size = 24291, upload-time = "2026-10-14T06:27:14.803Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/66/66/3ee8decf7a90c4683f4f955c7f573812c04310cc2102992dafc08b8a79aa/pyargprocessors-0.2.0-py3-none-any.whl", hash = "sha256:823df655148035cd0c77c98a6e83bf870f41f5e2ea3dddda419510a06e05be35", size = 19083, upload-time = "2026-10-14T06:27:12.357Z" },
+]
+
+[[package]]
 name = "pyformula"
-version = "0.1.1"
+version = "0.2.0"
 source = { editable = "." }
+dependencies = [
+    { name = "pyvocabulary" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -208,6 +220,7 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "pyvocabulary", editable = "../pyvocabulary" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -288,6 +301,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/01/81/1d954849aed17b254d1c397eb4447a05eedce612a56b627c071df2ce00c1/pytest-coverage-0.0.tar.gz", hash = "sha256:db6af2cbd7e458c7c9fd2b4207cee75258243c8a81cad31a7ee8cfad5be93c05", size = 873, upload-time = "2015-06-17T21:50:38.956Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5b/4b/d95b052f87db89a2383233c0754c45f6d3b427b7a4bcb771ac9316a6fae1/pytest_coverage-0.0-py2.py3-none-any.whl", hash = "sha256:dedd084c5e74d8e669355325916dc011539b190355021b037242514dee546368", size = 2013, upload-time = "2015-06-17T22:08:36.771Z" },
+]
+
+[[package]]
+name = "pyvocabulary"
+version = "0.1.0"
+source = { editable = "../pyvocabulary" }
+dependencies = [
+    { name = "pyargprocessors" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pyargprocessors", specifier = ">=0.1.0" }]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=9.1.1" },
+    { name = "pytest-cov", specifier = ">=6.0" },
 ]
 
 [[package]]

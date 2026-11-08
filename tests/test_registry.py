@@ -1,5 +1,12 @@
 import pytest
-from pyformula.exceptions import FormulaAlreadyRegisteredError, FormulaNotRegisteredError
+from pyformula import FormulaCompiler
+from pyformula.exceptions import (
+    FormulaAlreadyRegisteredError,
+    FormulaNotFoundError,
+    FormulaNotRegisteredError,
+    InvalidFormulaNameError,
+    PyformulaError,
+)
 from pyformula.formula import Formula
 from pyformula.registry import VariablesRegistry
 
@@ -63,8 +70,8 @@ def test_registry_variable_decorator_accepts_hidden_flag() -> None:
     def secret_salary(_: object) -> float:
         return 999.0
 
-    assert "secret_salary" in registry.variables
-    assert registry.variables["secret_salary"](None) == 999.0
+    assert "secret_salary" not in registry.variables
+    assert secret_salary(None) == 999.0
 
     with pytest.raises(FormulaNotRegisteredError):
         registry["secret_salary"]
@@ -101,8 +108,7 @@ def test_registry_getitem_raises_for_hidden_name() -> None:
     with pytest.raises(FormulaNotRegisteredError, match="bonus"):
         registry["bonus"]
 
-    assert "bonus" in registry.variables
-    assert registry.variables["bonus"](None) == 10.0
+    assert "bonus" not in registry.variables
 
 
 def test_registry_rejects_duplicate_registration() -> None:
@@ -165,3 +171,32 @@ def test_registry_allows_same_function_with_different_name() -> None:
 
     assert registry["base_salary"](None) == 100.0
     assert registry["updated_salary"](None) == 100.0
+
+
+def test_hidden_variable_cannot_be_compiled() -> None:
+    registry = VariablesRegistry()
+    registry.register_variable(lambda _: 10.0, name="bonus", hidden=True)
+
+    with pytest.raises(FormulaNotFoundError, match="bonus"):
+        FormulaCompiler(registry.variables).compile("bonus")
+
+
+def test_hidden_name_is_still_taken() -> None:
+    registry = VariablesRegistry()
+    registry.register_variable(lambda _: 10.0, name="bonus", hidden=True)
+
+    with pytest.raises(FormulaAlreadyRegisteredError, match="bonus"):
+        registry.register_variable(lambda _: 20.0, name="bonus")
+
+
+@pytest.mark.parametrize("name", ["net-salary", "net salary", "1st", "salary\n", ""])
+def test_registry_rejects_invalid_names(name: str) -> None:
+    registry = VariablesRegistry()
+
+    with pytest.raises(InvalidFormulaNameError, match="Invalid formula name"):
+        registry.register_variable(lambda _: 1.0, name=name)
+
+
+def test_invalid_name_error_is_a_pyformula_value_error() -> None:
+    assert issubclass(InvalidFormulaNameError, PyformulaError)
+    assert issubclass(InvalidFormulaNameError, ValueError)

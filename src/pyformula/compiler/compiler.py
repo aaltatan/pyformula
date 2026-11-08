@@ -5,6 +5,7 @@ from typing import Any, cast
 from pyformula import math
 from pyformula.exceptions import FormulaNotFoundError, InvalidExpressionError
 from pyformula.formula import Formula
+from pyformula.models import Number
 from pyformula.operator import OPERATORS
 
 from .models import (
@@ -53,8 +54,35 @@ WRAPPER_FNS: dict[str, Callable[[Formula[Any]], Formula[Any]]] = {
 }
 
 
+type LiteralFn = Callable[[Number], Any]
+
+
 class FormulaCompiler[T]:
     """Compile a structured expression tree into a runtime formula.
+
+    Args:
+        fns: The named formulas an expression may reference.
+        literal: Converts every number literal in an expression before use.
+            JSON numbers arrive as `float`, so formulas over `Decimal` money
+            should pass `literal=decimal_literal`, which goes through `str`
+            to keep `0.8` exact. Defaults to using literals as they are.
+
+    Example:
+    ```python
+    >>> from decimal import Decimal
+    >>> price = Formula(lambda order: order["price"], name="price")
+    >>> exact = FormulaCompiler({"price": price}, literal=decimal_literal)
+    >>> discounted = exact.compile({"operator": "multiply", "expressions": ["price", 0.8]})
+    >>> discounted
+    Formula((price * 0.8))
+    >>> discounted({"price": Decimal("120.00")})
+    Decimal('96.000')
+    >>> FormulaCompiler({"price": price}).compile("pricee")
+    Traceback (most recent call last):
+    ...
+    pyformula.exceptions.FormulaNotFoundError: Formula not found: pricee. Available formulas: price
+
+    ```
 
     Examples:
     ```python
@@ -113,8 +141,15 @@ class FormulaCompiler[T]:
 
     """
 
-    def __init__(self, fns: Mapping[str, Formula[T]], /) -> None:
+    def __init__(
+        self,
+        fns: Mapping[str, Formula[T]],
+        /,
+        *,
+        literal: LiteralFn | None = None,
+    ) -> None:
         self._fns = fns
+        self._literal = literal
 
     def compile(self, expression: Expression) -> Formula[T]:
         """Compile an expression object into a formula callable for a given model type."""
@@ -122,7 +157,7 @@ class FormulaCompiler[T]:
             raise InvalidExpressionError(expression)
 
         if isinstance(expression, (int, float, Decimal)):
-            return Formula(lambda _: expression)
+            return self._compile_literal(expression)
 
         if isinstance(expression, str):
             return self._compile_name(expression)
@@ -140,9 +175,13 @@ class FormulaCompiler[T]:
 
         raise InvalidExpressionError(expression)
 
+    def _compile_literal(self, number: Number) -> Formula[T]:
+        value = number if self._literal is None else self._literal(number)
+        return Formula(lambda _: value, name=str(value))
+
     def _compile_name(self, name: str) -> Formula[T]:
         if name not in self._fns:
-            raise FormulaNotFoundError(name)
+            raise FormulaNotFoundError(name, self._fns.keys())
 
         return self._fns[name]
 
@@ -183,3 +222,17 @@ class FormulaCompiler[T]:
             formula = applier(formula, self.compile(expression))
 
         return cast("Formula[T]", formula)
+
+
+def decimal_literal(number: Number, /) -> Decimal:
+    """Convert a JSON number to `Decimal` through `str`, so `0.8` stays exactly `0.8`.
+
+    Example:
+    ```python
+    >>> decimal_literal(0.8), Decimal(0.8) == decimal_literal(0.8)
+    (Decimal('0.8'), False)
+
+    ```
+
+    """
+    return number if isinstance(number, Decimal) else Decimal(str(number))

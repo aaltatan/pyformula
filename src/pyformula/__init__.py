@@ -1,9 +1,12 @@
-from .compiler.compiler import FormulaCompiler
+from .compiler.compiler import FormulaCompiler, LiteralFn, decimal_literal
 from .compiler.models import Expression
 from .exceptions import (
     FormulaAlreadyRegisteredError,
     FormulaNotFoundError,
     FormulaNotRegisteredError,
+    InvalidExpressionError,
+    InvalidFormulaNameError,
+    PyformulaError,
 )
 from .formula import Formula
 from .models import Number, Operator
@@ -18,9 +21,14 @@ __all__ = [
     "FormulaCompiler",
     "FormulaNotFoundError",
     "FormulaNotRegisteredError",
+    "InvalidExpressionError",
+    "InvalidFormulaNameError",
+    "LiteralFn",
     "Number",
     "Operator",
     "OperatorFn",
+    "PyformulaError",
     "VariablesRegistry",
+    "decimal_literal",
     "variable",
 ]

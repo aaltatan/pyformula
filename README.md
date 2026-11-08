@@ -852,6 +852,11 @@ The library raises explicit exceptions for common configuration mistakes:
 - `InvalidExpressionError`: the expression shape is malformed or unsupported
 - `FormulaAlreadyRegisteredError`: duplicate variable registration name
 - `FormulaNotRegisteredError`: name is registered but hidden or unavailable
+- `InvalidFormulaNameError`: a variable name is not a Python identifier (`net-salary`)
+
+Hidden variables (`hidden=True`) are left out of `registry.variables`, so a
+`FormulaCompiler(registry.variables)` cannot reach them; the decorated function
+still works from Python.
 
 Examples:
 
