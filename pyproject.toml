@@ -22,9 +22,6 @@ pyformula = "pyformula:main"
 "Issues" = "https://github.com/aaltatan/pyformula/issues"
 
 
-[tool.uv.sources]
-# the sibling checkout in ~/dev until pyvocabulary is published on PyPI
-pyvocabulary = { path = "../pyvocabulary", editable = true }
 
 [build-system]
 requires = ["uv_build>=0.12.6,<0.13.0"]
