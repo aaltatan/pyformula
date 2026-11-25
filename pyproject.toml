@@ -1,6 +1,6 @@
 [project]
 name = "pyformula"
-version = "0.2.1"
+version = "0.3.0"
 description = "A lightweight, typed Python library for composing business rules as reusable, executable numeric formulas."
 readme = "README.md"
 authors = [{ name = "aaltatan", email = "a.altatan@gmail.com" }]
@@ -30,6 +30,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "devtools>=0.12.2",
+    "jsonschema>=4.26.0",
     "latexify-py>=0.4.4",
     "pyspecification>=4.1.0",
     "pytest>=9.1.1",

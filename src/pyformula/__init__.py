@@ -9,12 +9,14 @@ from .exceptions import (
     PyformulaError,
 )
 from .formula import Formula
+from .json_schema import FUNCTIONS, get_formula_json_schema
 from .models import Number, Operator
 from .operator import OperatorFn
 from .registry import VariablesRegistry
 from .variable import variable
 
 __all__ = [
+    "FUNCTIONS",
     "Expression",
     "Formula",
     "FormulaAlreadyRegisteredError",
@@ -30,5 +32,6 @@ __all__ = [
     "PyformulaError",
     "VariablesRegistry",
     "decimal_literal",
+    "get_formula_json_schema",
     "variable",
 ]

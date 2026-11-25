@@ -1,6 +1,6 @@
 from collections.abc import Callable, Mapping
 
-from pyvocabulary import Vocabulary
+from pyvocabulary import Text, Vocabulary
 
 from .exceptions import (
     FormulaAlreadyRegisteredError,
@@ -73,6 +73,11 @@ class VariablesRegistry[T]:
         """Return a read-only view of the visible variables, the ones a compiler may use."""
         return self._variables
 
+    @property
+    def labels(self) -> dict[str, Text]:
+        """Return the labels of the visible variables that have one, by name."""
+        return self._variables.labels
+
     def __getitem__(self, name: str) -> Formula[T]:
         """Return a registered variable by name, raising if it is hidden or missing."""
         return self._variables[name]
@@ -83,11 +88,22 @@ class VariablesRegistry[T]:
         name: str | None = None,
         description: str | None = None,
         hidden: bool = False,
+        label: Text | None = None,
     ) -> Callable[[Callable[[T], Number]], Formula[T]]:
-        """Return a decorator that registers a function as a formula variable."""
+        """Return a decorator that registers a function as a formula variable.
+
+        Args:
+            name: The name used in JSON. Defaults to the function name.
+            description: Overrides the docstring.
+            hidden: Keep the variable usable from Python, but out of compilers and schemas.
+            label: Shown to people instead of the name: a string, or `{"en": ..., "ar": ...}`.
+
+        """
 
         def decorator(fn: Callable[[T], Number]) -> Formula[T]:
-            return self._register(fn, name=name, description=description, hidden=hidden)
+            return self._register(
+                fn, name=name, description=description, hidden=hidden, label=label
+            )
 
         return decorator
 
@@ -99,9 +115,10 @@ class VariablesRegistry[T]:
         name: str | None = None,
         description: str | None = None,
         hidden: bool = False,
+        label: Text | None = None,
     ) -> None:
         """Register a callable as a named formula variable in the registry."""
-        self._register(fn, name=name, description=description, hidden=hidden)
+        self._register(fn, name=name, description=description, hidden=hidden, label=label)
 
     def _register(
         self,
@@ -111,6 +128,7 @@ class VariablesRegistry[T]:
         name: str | None,
         description: str | None,
         hidden: bool,
+        label: Text | None,
     ) -> Formula[T]:
         reg_name = name or fn.__name__
         var = variable(name=reg_name)(fn)
@@ -118,4 +136,4 @@ class VariablesRegistry[T]:
         if description or fn.__doc__:
             var.__doc__ = description or fn.__doc__
 
-        return self._variables.add(reg_name, var, hidden=hidden)
+        return self._variables.add(reg_name, var, hidden=hidden, label=label)

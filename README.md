@@ -542,6 +542,39 @@ The compiler is intentionally strict:
 
 This is helpful when formulas come from untrusted configuration or user input.
 
+### 7) JSON Schema
+
+`get_formula_json_schema` describes the same shapes as a JSON Schema (Draft 2020-12), for
+validators and for editors such as rulify. Label variables in the registry with a string,
+or one text per language; the schema carries them as `x-label`.
+
+```python
+from pyformula import VariablesRegistry, get_formula_json_schema
+
+registry = VariablesRegistry()
+
+
+@registry.variable(label={"en": "Amount", "ar": "المبلغ"})
+def amount(row):
+    return row["amount"]
+
+
+schema = get_formula_json_schema(
+    registry.variables,
+    labels=registry.labels,
+    operators=["add", "multiply"],
+    functions=["round", "floor"],
+)
+
+print(schema["x-kind"])  # formula
+print(schema["$defs"]["variable"])
+# {'oneOf': [{'const': 'amount', 'x-label': {'en': 'Amount', 'ar': 'المبلغ'}}]}
+```
+
+`operators` and `functions` default to all of them (`FUNCTIONS` lists the functions).
+`nodes=` adds more shapes a formula may take, such as pyruleset's `{"when": <ruleset>}`;
+inside them, `{"$ref": "#"}` means "a formula".
+
 ---
 
 ## Example: payroll and compensation policies
@@ -888,7 +921,7 @@ except FormulaNotFoundError:
 The top-level package exposes:
 
 ```python
-from pyformula import Formula, FormulaCompiler, VariablesRegistry, variable
+from pyformula import Formula, FormulaCompiler, VariablesRegistry, get_formula_json_schema, variable
 ```
 
 And the main submodules are:
@@ -897,6 +930,7 @@ And the main submodules are:
 - `pyformula.variable` — decorator for named formulas
 - `pyformula.registry` — registry for named variables
 - `pyformula.compiler` — expression-tree compilation logic
+- `pyformula.json_schema` — the JSON Schema of a formula, with labels
 - `pyformula.math` — wrapper math functions for formulas
 - `pyformula.models` — numeric and operator type aliases
 - `pyformula.exceptions` — library-specific errors

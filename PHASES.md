@@ -12,3 +12,8 @@
 - [x] JSON-path notes on compiler errors via `pyvocabulary.located` (`at $.expressions[1].sqrt`)
 - [x] Clean up the 4 pre-existing `mypy --strict` findings (`compiler.py`, `formula.py`)
 - [x] Clean up the pre-existing ruff findings (7 left with the current ruff); `src` and `tests` are formatted
+
+## rulify prerequisites
+- [x] `get_formula_json_schema(variables, *, labels, operators, functions, nodes)` with `x-kind: "formula"`, each variable's `x-label` and description; `FUNCTIONS`
+- [x] `VariablesRegistry.variable(label=)`, `register_variable(label=)`, `labels` (pyvocabulary 0.2.0); `jsonschema` as a dev dependency; 0.3.0 (branch `feat/json-schema`, not published)
+- [ ] After pyvocabulary 0.2.0 is on PyPI: require `pyvocabulary>=0.2.0`, publish 0.3.0
