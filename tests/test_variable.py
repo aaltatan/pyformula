@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from pyformula import variable
+from pyformula import Formula, variable
 
 
 @dataclass(kw_only=True)
@@ -53,3 +53,12 @@ def test_variable_explicit_name_overrides_str_but_keeps_function_metadata() -> N
 
     assert str(working_days_variable) == "days"
     assert working_days_variable.__doc__ == "Return the number of working days."
+
+
+def test_variable_over_a_formula_keeps_its_own_name() -> None:
+    salary: Formula[dict[str, int]] = Formula(lambda e: e["salary"], name="salary")
+
+    annual = variable(name="annual_salary")(salary * 12)
+
+    assert str(annual) == "annual_salary"
+    assert annual({"salary": 10}) == 120

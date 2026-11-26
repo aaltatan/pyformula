@@ -65,9 +65,10 @@ class FormulaCompiler[T]:
     Args:
         fns: The named formulas an expression may reference.
         literal: Converts every number literal in an expression before use.
-            JSON numbers arrive as `float`, so formulas over `Decimal` money
-            should pass `literal=decimal_literal`, which goes through `str`
-            to keep `0.8` exact. Defaults to using literals as they are.
+            JSON numbers arrive as `float`; pass `literal=decimal_literal` to
+            turn them into exact `Decimal`s (through `str`, so `0.8` stays
+            `0.8`), also where no `Decimal` data is involved. Defaults to
+            using literals as they are.
 
     Example:
     ```python

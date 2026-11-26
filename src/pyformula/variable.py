@@ -52,7 +52,8 @@ def variable[T](*, name: str | None = None) -> Callable[[Callable[[T], Number]],
 
     def decorator(fn: Callable[[T], Number]) -> Formula[T]:
         formula = Formula(fn, name=name or fn.__name__)
-        update_wrapper(formula, fn)
+        # updated=(): copying fn.__dict__ would overwrite the name when fn is itself a Formula
+        update_wrapper(formula, fn, updated=())
         return formula
 
     return decorator

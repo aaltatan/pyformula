@@ -419,3 +419,31 @@ def test_formula_power_with_negative_decimal_base_and_fractional_exponent_raises
 
     with pytest.raises(InvalidOperation):
         (base**exponent)(None)
+
+
+class TestReflectedOperatorNames:
+    @pytest.mark.parametrize(
+        ("build", "expected"),
+        [
+            (lambda w: 10 - w, "(10 - w)"),
+            (lambda w: 100 / w, "(100 / w)"),
+            (lambda w: 2 * w, "(2 * w)"),
+            (lambda w: 2**w, "(2 ** w)"),
+            (lambda w: 7 % w, "(7 % w)"),
+            (lambda w: 9 // w, "(9 // w)"),
+            (lambda w: 1 + w, "(1 + w)"),
+            (lambda w: w - 10, "(w - 10)"),
+        ],
+    )
+    def test_name_keeps_operand_order(self, build: Any, expected: str) -> None:
+        w: Formula[dict[str, int]] = Formula(lambda o: o["w"], name="w")
+
+        assert str(build(w)) == expected
+
+
+class TestDecimalAndFloatMixing:
+    def test_float_operand_converts_to_its_shortest_decimal(self) -> None:
+        price: Formula[dict[str, Any]] = Formula(lambda o: o["price"], name="price")
+
+        assert (price + 0.1)({"price": Decimal("1.10")}) == Decimal("1.20")
+        assert (Decimal("1.10") + price)({"price": 0.1}) == Decimal("1.20")

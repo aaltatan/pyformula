@@ -19,6 +19,7 @@ pyformula = "pyformula:main"
 
 [project.urls]
 "Homepage" = "https://github.com/aaltatan/pyformula"
+"Documentation" = "https://aaltatan.github.io/pyformula/"
 "Issues" = "https://github.com/aaltatan/pyformula/issues"
 
 
@@ -35,4 +36,7 @@ dev = [
     "pyspecification>=4.1.0",
     "pytest>=9.1.1",
     "pytest-coverage>=0.0",
+]
+docs = [
+    "mkdocs-material>=9.8.2",
 ]

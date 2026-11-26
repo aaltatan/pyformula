@@ -200,3 +200,11 @@ def test_registry_rejects_invalid_names(name: str) -> None:
 def test_invalid_name_error_is_a_pyformula_value_error() -> None:
     assert issubclass(InvalidFormulaNameError, PyformulaError)
     assert issubclass(InvalidFormulaNameError, ValueError)
+
+
+def test_register_variable_returns_the_registered_formula() -> None:
+    registry: VariablesRegistry[dict[str, int]] = VariablesRegistry()
+
+    one = registry.register_variable(lambda _: 1, name="one")
+
+    assert one is registry["one"]

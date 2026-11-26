@@ -41,7 +41,8 @@ The package is `pyformula` under `src/`, built with `uv_build`.
 
 - Every exception derives from `PyformulaError` (branch `fix/errors-and-literals`).
 - `FormulaCompiler(..., literal=decimal_literal)` converts JSON number literals to exact
-  `Decimal`s; without it, `0.8` from JSON becomes `Decimal(0.8)` noise when the data is money.
+  `Decimal`s, so literal-only arithmetic is exact too. A `float` meeting a `Decimal` in an
+  operation is converted through `str` (`0.1` -> `Decimal("0.1")`), never `Decimal(0.1)`.
 - Compiled literals are named after their value, so `repr` reads `Formula((price * 0.8))`.
 
 ## Code style (non-negotiable)
