@@ -116,9 +116,9 @@ class VariablesRegistry[T]:
         description: str | None = None,
         hidden: bool = False,
         label: Text | None = None,
-    ) -> None:
-        """Register a callable as a named formula variable in the registry."""
-        self._register(fn, name=name, description=description, hidden=hidden, label=label)
+    ) -> Formula[T]:
+        """Register a callable as a named formula variable and return its formula."""
+        return self._register(fn, name=name, description=description, hidden=hidden, label=label)
 
     def _register(
         self,

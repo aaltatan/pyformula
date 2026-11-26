@@ -79,11 +79,15 @@ class TestLiteralHook:
         formula = FormulaCompiler[Any]({}).compile(0.8)
         assert type(formula({})) is float
 
-    def test_float_literal_leaks_into_decimal_money_without_the_hook(self):
-        leaky = FormulaCompiler({"price": price}).compile(
+    def test_float_literal_mixes_exactly_with_decimal_money_without_the_hook(self):
+        mixed = FormulaCompiler({"price": price}).compile(
             {"operator": "multiply", "expressions": ["price", 0.8]}
         )
-        assert leaky({"price": Decimal("120.00")}) != Decimal("96.000")
+        assert mixed({"price": Decimal("120.00")}) == Decimal("96.000")
+
+    def test_float_literals_stay_floats_without_the_hook(self):
+        floats = FormulaCompiler[Any]({}).compile({"operator": "add", "expressions": [0.1, 0.2]})
+        assert floats({}) == 0.30000000000000004
 
     def test_decimal_literal_keeps_money_exact(self):
         exact = FormulaCompiler({"price": price}, literal=decimal_literal).compile(

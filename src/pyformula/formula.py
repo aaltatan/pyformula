@@ -179,4 +179,6 @@ class Formula[T]:
                 (operator_fn(other_value, value)) if reverse else operator_fn(value, other_value),
             )
 
-        return Formula(inner, name=f"({self} {symbol} {other})")
+        left, right = (other, self) if reverse else (self, other)
+
+        return Formula(inner, name=f"({left} {symbol} {right})")
