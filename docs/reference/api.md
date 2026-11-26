@@ -87,7 +87,7 @@ Guide: [Variables and registries](../guide/variables.md).
 ### `FormulaCompiler[T]`
 
 ```py
-FormulaCompiler(variables: Mapping[str, Formula[T]], /, *, literal: LiteralFn | None = None)
+FormulaCompiler(fns: Mapping[str, Formula[T]], /, *, literal: LiteralFn | None = None)
 ```
 
 | Member | Description |
