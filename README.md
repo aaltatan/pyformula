@@ -2,6 +2,8 @@
 
 A lightweight, typed Python library for composing business rules as reusable, executable numeric formulas.
 
+**Documentation: <https://aaltatan.github.io/pyformula/>**
+
 `pyformula` focuses on a functional style where:
 
 - formulas are first-class callable objects
