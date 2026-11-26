@@ -16,4 +16,4 @@
 ## rulify prerequisites
 - [x] `get_formula_json_schema(variables, *, labels, operators, functions, nodes)` with `x-kind: "formula"`, each variable's `x-label` and description; `FUNCTIONS`
 - [x] `VariablesRegistry.variable(label=)`, `register_variable(label=)`, `labels` (pyvocabulary 0.2.0); `jsonschema` as a dev dependency; 0.3.0 (branch `feat/json-schema`, not published)
-- [ ] After pyvocabulary 0.2.0 is on PyPI: require `pyvocabulary>=0.2.0`, publish 0.3.0
+- [x] After pyvocabulary 0.2.0 is on PyPI: require `pyvocabulary>=0.2.0`, publish 0.3.0
